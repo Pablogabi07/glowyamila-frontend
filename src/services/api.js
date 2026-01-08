@@ -13,12 +13,14 @@ async function fetchAPI(endpoint) {
 }
 
 export async function getProductos() {
-  return fetchAPI(`/productos?populate=imagen_principal,categoria`);
+  return fetchAPI(
+    `/productos?populate[imagen_principal]=true&populate[categoria]=true`
+  );
 }
 
 export async function getProducto(id) {
   return fetchAPI(
-    `/productos/${id}?populate=imagen_principal,categoria,galeria`
+    `/productos/${id}?populate[imagen_principal]=true&populate[categoria]=true&populate[galeria]=true`
   );
 }
 

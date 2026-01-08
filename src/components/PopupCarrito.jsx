@@ -11,6 +11,8 @@ export default function PopupCarrito() {
     enviar,
     pagar,
     total,
+    sumar,
+    restar,
   } = useContext(CartContext);
 
   if (!abierto) return null;
@@ -26,15 +28,28 @@ export default function PopupCarrito() {
           <>
             {carrito.map((p, i) => (
               <div key={i} className="popup-item">
-                <span>
-                  {p.nombre} x{p.cantidad}
-                </span>
+                <span>{p.nombre}</span>
+
+                <div className="cantidad-controls">
+                  <button className="btn-cantidad" onClick={() => restar(p.id)}>
+                    -
+                  </button>
+
+                  <span className="cantidad">{p.cantidad}</span>
+
+                  <button className="btn-cantidad" onClick={() => sumar(p.id)}>
+                    +
+                  </button>
+                </div>
+
                 <span>${p.precio * p.cantidad}</span>
+
                 <button className="btn-eliminar" onClick={() => eliminar(i)}>
                   X
                 </button>
               </div>
             ))}
+
             <div className="popup-total">
               <strong>Total:</strong> ${total}
             </div>
@@ -45,9 +60,11 @@ export default function PopupCarrito() {
           <button className="btn-vaciar" onClick={vaciar}>
             Vaciar
           </button>
+
           <button className="btn-whatsapp" onClick={enviar}>
             Enviar por WhatsApp
           </button>
+
           {carrito.length > 0 && (
             <button className="btn-pagar" onClick={pagar}>
               Ir a pagar con Mercado Pago

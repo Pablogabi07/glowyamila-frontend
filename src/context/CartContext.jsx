@@ -5,6 +5,7 @@ export const CartContext = createContext();
 export function CartProvider({ children }) {
   const [carrito, setCarrito] = useState([]);
   const [abierto, setAbierto] = useState(false);
+  const [animarCarrito, setAnimarCarrito] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("carrito");
@@ -15,16 +16,43 @@ export function CartProvider({ children }) {
     localStorage.setItem("carrito", JSON.stringify(carrito));
   }, [carrito]);
 
+  const triggerAnimacion = () => {
+    setAnimarCarrito(true);
+    setTimeout(() => setAnimarCarrito(false), 700);
+  };
+
   const agregar = (producto) => {
     setCarrito((prev) => {
       const index = prev.findIndex((p) => p.id === producto.id);
+
       if (index >= 0) {
         const nuevo = [...prev];
-        nuevo[index].cantidad += producto.cantidad;
+        nuevo[index].cantidad += 1;
         return nuevo;
       }
-      return [...prev, producto];
+
+      return [...prev, { ...producto, cantidad: 1 }];
     });
+
+    triggerAnimacion();
+  };
+
+  const sumar = (id) => {
+    setCarrito((prev) =>
+      prev.map((p) =>
+        p.id === id ? { ...p, cantidad: p.cantidad + 1 } : p
+      )
+    );
+  };
+
+  const restar = (id) => {
+    setCarrito((prev) =>
+      prev
+        .map((p) =>
+          p.id === id ? { ...p, cantidad: p.cantidad - 1 } : p
+        )
+        .filter((p) => p.cantidad > 0)
+    );
   };
 
   const eliminar = (index) => {
@@ -48,7 +76,9 @@ export function CartProvider({ children }) {
       .map((p) => `${p.nombre} x${p.cantidad} = $${p.precio * p.cantidad}`)
       .join("\n");
 
-    const url = `https://wa.me/?text=${encodeURIComponent(
+    const numero = "54911XXXXYYYY"; // ← tu número
+
+    const url = `https://wa.me/${numero}?text=${encodeURIComponent(
       `Hola! Quiero comprar:\n\n${mensaje}\n\nTotal: $${total}`
     )}`;
 
@@ -79,12 +109,15 @@ export function CartProvider({ children }) {
         agregar,
         eliminar,
         vaciar,
+        sumar,
+        restar,
         abierto,
         abrirCarrito,
         cerrarCarrito,
         total,
         enviar,
         pagar,
+        animarCarrito,
       }}
     >
       {children}
