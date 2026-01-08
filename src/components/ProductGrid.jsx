@@ -16,7 +16,7 @@ export default function ProductGrid() {
     <div style={styles.grid}>
       {productos.map((p) => {
         const imagenUrl = p.imagen_principal?.url
-          ? `http://localhost:1337${p.imagen_principal.url}`
+          ? `${import.meta.env.VITE_MEDIA_URL}${p.imagen_principal.url}`
           : "";
 
         const handleAgregar = () => {
