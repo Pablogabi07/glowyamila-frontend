@@ -76,7 +76,7 @@ export function CartProvider({ children }) {
       .map((p) => `${p.nombre} x${p.cantidad} = $${p.precio * p.cantidad}`)
       .join("\n");
 
-    const numero = "54911XXXXYYYY"; // ← tu número
+    const numero = "5491133007172"; // ← tu número
 
     const url = `https://wa.me/${numero}?text=${encodeURIComponent(
       `Hola! Quiero comprar:\n\n${mensaje}\n\nTotal: $${total}`

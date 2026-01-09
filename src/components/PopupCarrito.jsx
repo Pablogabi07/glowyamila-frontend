@@ -28,6 +28,22 @@ export default function PopupCarrito() {
           <>
             {carrito.map((p, i) => (
               <div key={i} className="popup-item">
+
+                {/* Imagen protegida */}
+                {p.imagen && (
+                  <img
+                    src={p.imagen}
+                    alt={p.nombre}
+                    style={{
+                      width: "60px",
+                      height: "60px",
+                      objectFit: "cover",
+                      borderRadius: "8px",
+                      marginRight: "10px",
+                    }}
+                  />
+                )}
+
                 <span>{p.nombre}</span>
 
                 <div className="cantidad-controls">
