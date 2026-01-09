@@ -87,56 +87,91 @@ body {
 }
 
 /* ============================
-            HERO SECTION
-            ============================ */
+            HERO SECTION (MEJORADO)
+   ============================ */
 
 .hero {
-  height: 70vh;
+  height: 85vh;
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 100px 20px 0;
+  padding: 140px 20px 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Sutil overlay para mejorar contraste */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    rgba(255, 255, 255, 0.4),
+    rgba(255, 255, 255, 0.1)
+  );
+  backdrop-filter: blur(2px);
+  z-index: 1;
 }
 
 .hero-box {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  padding: 40px;
-  border-radius: 30px;
-  max-width: 600px;
+  position: relative;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(14px);
+  padding: 50px 45px;
+  border-radius: 35px;
+  max-width: 650px;
   text-align: center;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  animation: fadeIn 1.2s ease forwards;
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .hero-box h2 {
-  font-size: 36px;
+  font-size: 42px;
   font-weight: 700;
+  color: var(--negro);
+  line-height: 1.2;
 }
 
 .hero-box p {
-  margin-top: 15px;
-  font-size: 18px;
+  margin-top: 18px;
+  font-size: 20px;
   color: #444;
 }
 
 .hero-button {
-  margin-top: 25px;
+  margin-top: 30px;
   background: var(--rosa);
   color: white;
-  padding: 12px 40px;
-  border-radius: 30px;
-  font-size: 18px;
+  padding: 14px 45px;
+  border-radius: 40px;
+  font-size: 20px;
   font-weight: 600;
   border: none;
   cursor: pointer;
-  transition: 0.3s;
+  transition: 0.3s ease;
+  box-shadow: 0 6px 18px rgba(255, 79, 163, 0.35);
 }
 
 .hero-button:hover {
   background: #d93c8a;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(255, 79, 163, 0.45);
 }
+
+
 
 /* ============================
             PRODUCTOS GRID
@@ -544,3 +579,5 @@ body {
   font-size: 0.8rem;
   font-weight: bold;
 }
+
+/* ============================ RESPONSIVE HERO ============================ */ @media (max-width: 768px) { .hero { height: auto; padding: 160px 20px 60px; } .hero-box { padding: 35px 25px; border-radius: 25px; } .hero-box h2 { font-size: 30px; } .hero-box p { font-size: 16px; } .hero-button { font-size: 16px; padding: 10px 28px; } }
