@@ -13,19 +13,22 @@ import { CartProvider } from "./context/CartContext";
 import Login from "./admin/Login";
 import LayoutAdmin from "./admin/LayoutAdmin";
 import ProtectedRoute from "./admin/ProtectedRoute";
+
 import Dashboard from "./admin/Dashboard";
+
 import AdminProductos from "./admin/Productos";
 import CrearProducto from "./admin/CrearProducto";
 import EditarProducto from "./admin/EditarProducto";
+
 import Categorias from "./admin/Categorias";
 import CrearCategoria from "./admin/CrearCategoria";
 import EditarCategoria from "./admin/EditarCategoria";
+
 import Combos from "./admin/Combos";
 import CrearCombo from "./admin/CrearCombo";
 import EditarCombo from "./admin/EditarCombo";
+
 import Ofertas from "./admin/Ofertas";
-
-
 
 export default function App() {
   return (
@@ -69,6 +72,9 @@ export default function App() {
             }
           />
 
+          {/* ---------------------- */}
+          {/*     PRODUCTOS ADMIN    */}
+          {/* ---------------------- */}
           <Route
             path="/admin/productos"
             element={
@@ -81,104 +87,112 @@ export default function App() {
           />
 
           <Route
-  path="/admin/productos/crear"
-  element={
-    <ProtectedRoute>
-      <LayoutAdmin>
-        <CrearProducto />
-      </LayoutAdmin>
-    </ProtectedRoute>
-  }
-/>
+            path="/admin/productos/crear"
+            element={
+              <ProtectedRoute>
+                <LayoutAdmin>
+                  <CrearProducto />
+                </LayoutAdmin>
+              </ProtectedRoute>
+            }
+          />
 
-<Route
-  path="/admin/productos/:id"
-  element={
-    <ProtectedRoute>
-      <LayoutAdmin>
-        <EditarProducto />
-      </LayoutAdmin>
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/admin/productos/:id"
+            element={
+              <ProtectedRoute>
+                <LayoutAdmin>
+                  <EditarProducto />
+                </LayoutAdmin>
+              </ProtectedRoute>
+            }
+          />
 
-<Route
-  path="/admin/categorias"
-  element={
-    <ProtectedRoute>
-      <LayoutAdmin>
-        <Categorias />
-      </LayoutAdmin>
-    </ProtectedRoute>
-  }
-/>
+          {/* ---------------------- */}
+          {/*     CATEGORÍAS ADMIN   */}
+          {/* ---------------------- */}
+          <Route
+            path="/admin/categorias"
+            element={
+              <ProtectedRoute>
+                <LayoutAdmin>
+                  <Categorias />
+                </LayoutAdmin>
+              </ProtectedRoute>
+            }
+          />
 
-<Route
-  path="/admin/categorias/crear"
-  element={
-    <ProtectedRoute>
-      <LayoutAdmin>
-        <CrearCategoria />
-      </LayoutAdmin>
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/admin/categorias/crear"
+            element={
+              <ProtectedRoute>
+                <LayoutAdmin>
+                  <CrearCategoria />
+                </LayoutAdmin>
+              </ProtectedRoute>
+            }
+          />
 
-<Route
-  path="/admin/categorias/:id"
-  element={
-    <ProtectedRoute>
-      <LayoutAdmin>
-        <EditarCategoria />
-      </LayoutAdmin>
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/admin/categorias/:id"
+            element={
+              <ProtectedRoute>
+                <LayoutAdmin>
+                  <EditarCategoria />
+                </LayoutAdmin>
+              </ProtectedRoute>
+            }
+          />
 
-<Route
-  path="/admin/combos"
-  element={
-    <ProtectedRoute>
-      <LayoutAdmin>
-        <Combos />
-      </LayoutAdmin>
-    </ProtectedRoute>
-  }
-/>
+          {/* ---------------------- */}
+          {/*       COMBOS ADMIN     */}
+          {/* ---------------------- */}
+          <Route
+            path="/admin/combos"
+            element={
+              <ProtectedRoute>
+                <LayoutAdmin>
+                  <Combos />
+                </LayoutAdmin>
+              </ProtectedRoute>
+            }
+          />
 
-<Route
-  path="/admin/combos/crear"
-  element={
-    <ProtectedRoute>
-      <LayoutAdmin>
-        <CrearCombo />
-      </LayoutAdmin>
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/admin/combos/crear"
+            element={
+              <ProtectedRoute>
+                <LayoutAdmin>
+                  <CrearCombo />
+                </LayoutAdmin>
+              </ProtectedRoute>
+            }
+          />
 
-<Route
-  path="/admin/combos/:id"
-  element={
-    <ProtectedRoute>
-      <LayoutAdmin>
-        <EditarCombo />
-      </LayoutAdmin>
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/admin/combos/:id"
+            element={
+              <ProtectedRoute>
+                <LayoutAdmin>
+                  <EditarCombo />
+                </LayoutAdmin>
+              </ProtectedRoute>
+            }
+          />
 
-<Route
-  path="/admin/ofertas"
-  element={
-    <ProtectedRoute>
-      <LayoutAdmin>
-        <Ofertas />
-      </LayoutAdmin>
-    </ProtectedRoute>
-  }
-/>
-
+          {/* ---------------------- */}
+          {/*       OFERTAS ADMIN    */}
+          {/* ---------------------- */}
+          <Route
+            path="/admin/ofertas"
+            element={
+              <ProtectedRoute>
+                <LayoutAdmin>
+                  <Ofertas />
+                </LayoutAdmin>
+              </ProtectedRoute>
+            }
+          />
 
         </Routes>
       </CartProvider>

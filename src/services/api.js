@@ -160,16 +160,26 @@ export async function borrarProducto(id) {
   return deleteAPI(`/productos/${id}`);
 }
 
+// ---- Categorías ----
 export async function crearCategoria(data) {
   return postAPI(`/categorias`, data);
+}
+
+export async function editarCategoria(id, data) {
+  return putAPI(`/categorias/${id}`, data);
 }
 
 export async function borrarCategoria(id) {
   return deleteAPI(`/categorias/${id}`);
 }
 
+// ---- Combos ----
 export async function crearCombo(data) {
   return postAPI(`/combos`, data);
+}
+
+export async function editarCombo(id, data) {
+  return putAPI(`/combos/${id}`, data);
 }
 
 export async function borrarCombo(id) {
