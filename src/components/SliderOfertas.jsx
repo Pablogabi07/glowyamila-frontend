@@ -18,6 +18,9 @@ export default function SliderOfertas() {
 
       <Swiper spaceBetween={20} slidesPerView={1.2}>
         {ofertas.map((p) => {
+          // Protección contra productos corruptos
+          if (!p || !p.attributes) return null;
+
           const info = p.attributes;
 
           const img = info.imagen_principal?.data?.attributes?.url
@@ -34,11 +37,14 @@ export default function SliderOfertas() {
                   boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                 }}
               >
-                <img
-                  src={img}
-                  alt={info.nombre}
-                  style={{ width: "100%", borderRadius: "8px" }}
-                />
+                {img && (
+                  <img
+                    src={img}
+                    alt={info.nombre}
+                    style={{ width: "100%", borderRadius: "8px" }}
+                  />
+                )}
+
                 <h3 style={{ marginTop: "0.5rem" }}>{info.nombre}</h3>
               </div>
             </SwiperSlide>

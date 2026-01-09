@@ -4,7 +4,7 @@ import { CartContext } from "../context/CartContext";
 
 export default function ProductGrid() {
   const [productos, setProductos] = useState([]);
-  const { agregar } = useContext(CartContext);
+  const { agregar } = useContext(CCartContext);
 
   useEffect(() => {
     getProductos().then((data) => {
@@ -15,8 +15,12 @@ export default function ProductGrid() {
   return (
     <div style={styles.grid}>
       {productos.map((p) => {
+        // Protección contra productos vacíos o corruptos
+        if (!p || !p.attributes) return null;
+
         const info = p.attributes;
 
+        // Imagen protegida
         const imagenUrl = info.imagen_principal?.data?.attributes?.url
           ? `${import.meta.env.VITE_MEDIA_URL}${info.imagen_principal.data.attributes.url}`
           : "";
@@ -38,9 +42,12 @@ export default function ProductGrid() {
             )}
 
             <h2 style={styles.title}>{info.nombre}</h2>
+
             <p style={styles.category}>
-              Categoría: {info.categoria?.data?.attributes?.nombre}
+              Categoría:{" "}
+              {info.categoria?.data?.attributes?.nombre || "Sin categoría"}
             </p>
+
             <p style={styles.price}>${info.precio}</p>
 
             <button style={styles.button} onClick={handleAgregar}>

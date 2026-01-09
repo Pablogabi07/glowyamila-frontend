@@ -5,9 +5,7 @@ export default function Ofertas() {
   const [ofertas, setOfertas] = useState([]);
 
   useEffect(() => {
-    getOfertas().then((data) => {
-      setOfertas(data || []);
-    });
+    getOfertas().then((data) => setOfertas(data || []));
   }, []);
 
   const calcularDescuento = (original, oferta) => {
@@ -21,6 +19,9 @@ export default function Ofertas() {
 
       <div style={styles.grid}>
         {ofertas.map((p) => {
+          // Protección contra productos corruptos
+          if (!p || !p.attributes) return null;
+
           const info = p.attributes;
 
           const imagenUrl = info.imagen_principal?.data?.attributes?.url
