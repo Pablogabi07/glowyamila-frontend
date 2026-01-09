@@ -5,15 +5,36 @@ export default function Login() {
   const [pass, setPass] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = (e) => {
-    e.preventDefault();
+  const API_URL = import.meta.env.VITE_API_URL; // tu backend Strapi
 
-    // Login simple (luego lo conectamos a Strapi si querés)
-    if (email === "admin@glowy.com" && pass === "123456") {
-      localStorage.setItem("admin_token", "OK");
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const res = await fetch(`${API_URL}/admin/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password: pass,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError("Credenciales incorrectas");
+        return;
+      }
+
+      // Guardamos el token real de Strapi
+      localStorage.setItem("admin_token", data.data.token);
+
+      // Redirigimos al panel
       window.location.href = "/admin";
-    } else {
-      setError("Credenciales incorrectas");
+    } catch (err) {
+      setError("Error de conexión con el servidor");
     }
   };
 
