@@ -4,7 +4,7 @@ import { CartContext } from "../context/CartContext";
 
 export default function ProductGrid() {
   const [productos, setProductos] = useState([]);
-  const { agregar } = useContext(CCartContext);
+  const { agregar } = useContext(CartContext);
 
   useEffect(() => {
     getProductos().then((data) => {
