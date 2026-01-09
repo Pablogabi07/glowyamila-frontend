@@ -22,7 +22,15 @@ export default function Combos() {
         }}
       >
         {combos.map((c) => {
+          // Protección contra combos corruptos o vacíos
+          if (!c || !c.attributes) return null;
+
           const info = c.attributes;
+
+          // Imagen protegida
+          const img = info.imagen_principal?.data?.attributes?.url
+            ? `${import.meta.env.VITE_MEDIA_URL}${info.imagen_principal.data.attributes.url}`
+            : "";
 
           return (
             <div
@@ -34,8 +42,17 @@ export default function Combos() {
                 boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
               }}
             >
+              {img && (
+                <img
+                  src={img}
+                  alt={info.nombre}
+                  style={{ width: "100%", borderRadius: "8px" }}
+                />
+              )}
+
               <h3 style={{ marginTop: "0.5rem" }}>{info.nombre}</h3>
-              <p>{info.descripcion}</p>
+
+              <p>{info.descripcion || "Sin descripción"}</p>
             </div>
           );
         })}
