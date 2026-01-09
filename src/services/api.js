@@ -1,5 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
+// Función genérica para llamar a la API
 async function fetchAPI(endpoint) {
   try {
     const res = await fetch(`${API_URL}${endpoint}`);
@@ -12,18 +13,29 @@ async function fetchAPI(endpoint) {
   }
 }
 
+// Obtener todos los productos
 export async function getProductos() {
-  return fetchAPI(
-    `/productos?populate[imagen_principal]=true&populate[categoria]=true`
-  );
+  return fetchAPI(`/productos?populate=*`);
 }
 
+// Obtener un producto por ID
 export async function getProducto(id) {
+  return fetchAPI(`/productos/${id}?populate=*`);
+}
+
+// Obtener categorías
+export async function getCategorias() {
+  return fetchAPI(`/categorias?populate=*`);
+}
+
+// Obtener productos marcados como oferta
+export async function getOfertas() {
   return fetchAPI(
-    `/productos/${id}?populate[imagen_principal]=true&populate[categoria]=true&populate[galeria]=true`
+    `/productos?filters[es_oferta][$eq]=true&populate=*`
   );
 }
 
-export async function getCategorias() {
-  return fetchAPI(`/categorias`);
+// Obtener combos (nueva colección)
+export async function getCombos() {
+  return fetchAPI(`/combos?populate=*`);
 }
