@@ -15,28 +15,33 @@ export default function ProductGrid() {
   return (
     <div style={styles.grid}>
       {productos.map((p) => {
-        const imagenUrl = p.imagen_principal?.url
-          ? `${import.meta.env.VITE_MEDIA_URL}${p.imagen_principal.url}`
+        const info = p.attributes;
+
+        const imagenUrl = info.imagen_principal?.data?.attributes?.url
+          ? `${import.meta.env.VITE_MEDIA_URL}${info.imagen_principal.data.attributes.url}`
           : "";
 
         const handleAgregar = () => {
           agregar({
             id: p.id,
-            nombre: p.nombre,
-            precio: p.precio,
+            nombre: info.nombre,
+            precio: info.precio,
             cantidad: 1,
+            imagen: imagenUrl,
           });
         };
 
         return (
           <div key={p.id} style={styles.card}>
             {imagenUrl && (
-              <img src={imagenUrl} alt={p.nombre} style={styles.image} />
+              <img src={imagenUrl} alt={info.nombre} style={styles.image} />
             )}
 
-            <h2 style={styles.title}>{p.nombre}</h2>
-            <p style={styles.category}>Categoría: {p.categoria?.nombre}</p>
-            <p style={styles.price}>${p.precio}</p>
+            <h2 style={styles.title}>{info.nombre}</h2>
+            <p style={styles.category}>
+              Categoría: {info.categoria?.data?.attributes?.nombre}
+            </p>
+            <p style={styles.price}>${info.precio}</p>
 
             <button style={styles.button} onClick={handleAgregar}>
               Agregar al carrito
