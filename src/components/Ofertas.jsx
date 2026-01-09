@@ -16,7 +16,7 @@ export default function Ofertas() {
   };
 
   return (
-    <div style={styles.wrapper}>
+    <div id="ofertas" style={styles.wrapper}>
       <h2 style={styles.title}>Ofertas</h2>
 
       <div style={styles.grid}>
