@@ -8,7 +8,7 @@ export default function CarruselOfertas() {
   const carouselRef = useRef(null)
 
   useEffect(() => {
-    fetch('http://localhost:4000/api/offers')
+    fetch(`${import.meta.env.VITE_API_URL}/api/offers`)
       .then(res => res.json())
       .then(data => setOffers(data))
   }, [])
@@ -50,7 +50,7 @@ export default function CarruselOfertas() {
           {offers.map(p => (
             <div key={p.id} className="carrusel-item">
               <img
-                src={`http://localhost:4000${p.imageUrl}`}
+                src={`${import.meta.env.VITE_API_URL}${p.imageUrl}`}
                 alt={p.name}
                 className="carrusel-img"
               />

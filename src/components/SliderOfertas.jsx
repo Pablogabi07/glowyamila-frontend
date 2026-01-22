@@ -9,7 +9,7 @@ export default function SliderOfertas() {
 
   // Cargar ofertas desde el backend
   useEffect(() => {
-    fetch('http://localhost:4000/api/offers')
+    fetch(`${import.meta.env.VITE_API_URL}/api/offers`)
       .then(res => res.json())
       .then(data => setOffers(data))
   }, [])
@@ -35,7 +35,7 @@ export default function SliderOfertas() {
 
       <div className="slider-card">
         <img
-          src={`http://localhost:4000${current.imageUrl}`}
+          src={`${import.meta.env.VITE_API_URL}${current.imageUrl}`}
           alt={current.name}
           className="slider-image"
         />

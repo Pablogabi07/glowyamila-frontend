@@ -49,7 +49,7 @@ export default function AdminPanel() {
 
   // Cargar productos
   const loadProducts = () => {
-    fetch('http://localhost:4000/api/admin/products', {
+    fetch(`${import.meta.env.VITE_API_URL}/api/admin/products`, {
       headers: { 'x-admin-token': token }
     })
       .then(res => res.json())
@@ -105,7 +105,7 @@ export default function AdminPanel() {
     const formData = new FormData()
     formData.append('image', imageFile)
 
-    const res = await fetch('http://localhost:4000/api/admin/upload', {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/upload`, {
       method: 'POST',
       headers: { 'x-admin-token': token },
       body: formData
@@ -130,8 +130,8 @@ export default function AdminPanel() {
 
     const method = form.id ? 'PUT' : 'POST'
     const url = form.id
-      ? `http://localhost:4000/api/admin/products/${form.id}`
-      : 'http://localhost:4000/api/admin/products'
+      ? `${import.meta.env.VITE_API_URL}/api/admin/products/${form.id}`
+      : `${import.meta.env.VITE_API_URL}/api/admin/products`
 
     await fetch(url, {
       method,
@@ -159,16 +159,15 @@ export default function AdminPanel() {
     loadProducts()
   }
 
-  // ELIMINAR PRODUCTO (CORRECTO PARA TU BACKEND)
+  // ELIMINAR PRODUCTO
   const deleteProduct = async (id) => {
     if (!confirm('¿Eliminar producto?')) return
 
-    await fetch(`http://localhost:4000/api/admin/products/${id}`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/admin/products/${id}`, {
       method: 'DELETE',
       headers: { 'x-admin-token': token }
     })
 
-    // Actualiza UI inmediatamente
     setProducts(prev => prev.filter(p => p.id !== id))
     setFiltered(prev => prev.filter(p => p.id !== id))
   }
@@ -309,7 +308,7 @@ export default function AdminPanel() {
 
         {form.imageUrl && (
           <img
-            src={`http://localhost:4000${form.imageUrl}`}
+            src={`${import.meta.env.VITE_API_URL}${form.imageUrl}`}
             className="admin-image-preview"
             alt="preview"
           />
@@ -328,7 +327,7 @@ export default function AdminPanel() {
       {currentItems.map(p => (
         <div key={p.id} className="admin-product-row">
           <img
-            src={`http://localhost:4000${p.imageUrl}`}
+            src={`${import.meta.env.VITE_API_URL}${p.imageUrl}`}
             alt={p.name}
             className="admin-thumb"
           />

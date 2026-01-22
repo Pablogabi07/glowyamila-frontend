@@ -21,7 +21,7 @@ export default function AdminDashboard() {
   }, [token, navigate])
 
   useEffect(() => {
-    fetch('http://localhost:4000/api/admin/products', {
+    fetch(`${import.meta.env.VITE_API_URL}/api/admin/products`, {
       headers: { 'x-admin-token': token }
     })
       .then(res => res.json())
@@ -45,7 +45,6 @@ export default function AdminDashboard() {
     setStats({ total, offers, categories, avgPrice, maxPrice, minPrice })
   }
 
-  // Productos por categoría (para gráfico simple)
   const categoryCount = products.reduce((acc, p) => {
     acc[p.category] = (acc[p.category] || 0) + 1
     return acc
@@ -56,7 +55,6 @@ export default function AdminDashboard() {
 
       <h2>Dashboard Administrativo</h2>
 
-      {/* TARJETAS DE ESTADÍSTICAS */}
       <div className="dashboard-cards">
         <div className="dash-card">
           <h3>{stats.total}</h3>
@@ -91,7 +89,6 @@ export default function AdminDashboard() {
 
       <h3 style={{ marginTop: '40px' }}>Productos por categoría</h3>
 
-      {/* GRÁFICO SIMPLE */}
       <div className="chart-container">
         {Object.entries(categoryCount).map(([cat, count]) => (
           <div key={cat} className="chart-row">
