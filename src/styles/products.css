@@ -1,0 +1,121 @@
+/* Fondo de la sección de productos */
+.products-section {
+  padding-top: 40px;
+  padding-bottom: 60px;
+}
+
+
+/* Grid de productos */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 35px;
+  padding: 40px 20px;
+  max-width: 1300px;
+  margin: 0 auto; /* centra el grid */
+}
+
+
+/* Tarjeta de producto */
+.product-card {
+  background: #fff0f7; /* rosa MUY suave */
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 4px 12px rgba(255, 105, 180, 0.15); /* sombra rosada */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #ffd6e8; /* borde rosa pastel */
+}
+
+/* Hover elegante */
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(255, 105, 180, 0.25);
+}
+
+/* Imagen */
+.product-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* Nombre */
+.product-card h3 {
+  margin: 15px 0 5px;
+  font-size: 1.2rem;
+  color: #cc2e72; /* rosa más fuerte */
+}
+
+/* Descripción */
+.product-card p {
+  font-size: 0.95rem;
+  text-align: center;
+  color: #555;
+}
+
+/* Precio */
+.price {
+  margin: 10px 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.price .old {
+  text-decoration: line-through;
+  color: #888;
+  margin-right: 10px;
+}
+
+.price .offer {
+  color: #ff4081;
+}
+
+/* Botón */
+.product-card button {
+  margin-top: auto;
+  padding: 10px 20px;
+  background: #ff69b4;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.product-card button:hover {
+  background: #ff4fa0;
+}
+
+/* ----------------------------- */
+/* 🌙 MODO OSCURO */
+/* ----------------------------- */
+
+body.dark .product-card {
+  background: #1e1e1e;
+  border-color: #333;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+body.dark .product-card h3 {
+  color: #ff9ad0;
+}
+
+body.dark .product-card p {
+  color: #ddd;
+}
+
+body.dark .price .offer {
+  color: #ff69b4;
+}
+
+body.dark .product-card button {
+  background: #ff69b4;
+}
+
+body.dark .product-card button:hover {
+  background: #ff85c4;
+}

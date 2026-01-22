@@ -1,0 +1,204 @@
+/* NAVBAR BASE */
+.navbar {
+  width: 100%;
+  background: rgba(255, 179, 214, 0.55); /* rosa pastel con transparencia */
+  backdrop-filter: blur(12px); /* efecto iOS */
+  -webkit-backdrop-filter: blur(12px);
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  transition: background 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+/* Modo oscuro */
+body.dark .navbar {
+  background: rgba(30, 30, 30, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* LOGO + TEXTO */
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.logo-text {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #cc2e72;
+}
+
+/* LINKS DESKTOP */
+.nav-links {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+  align-items: center;
+}
+
+.nav-links a {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #7a1f4d;
+  transition: 0.2s;
+}
+
+.nav-links a:hover {
+  color: white;
+}
+
+/* Modo oscuro links */
+body.dark .nav-links a {
+  color: #ff9ad0;
+}
+
+body.dark .nav-links a:hover {
+  color: #ff69b4;
+}
+
+/* BOTÓN MODO OSCURO */
+.dark-toggle {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #888;
+  background: rgba(255,255,255,0.3);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.dark-toggle:hover {
+  background: rgba(255,255,255,0.5);
+}
+
+body.dark .dark-toggle {
+  border-color: #ccc;
+  color: #fff;
+  background: rgba(0,0,0,0.3);
+}
+
+/* ----------------------------- */
+/* 📱 MENÚ HAMBURGUESA (MOBILE) */
+/* ----------------------------- */
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.line {
+  width: 25px;
+  height: 3px;
+  background: #7a1f4d;
+  transition: 0.3s;
+}
+
+body.dark .line {
+  background: #ff9ad0;
+}
+
+/* Animación del ícono */
+.line.open:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+.line.open:nth-child(2) {
+  opacity: 0;
+}
+.line.open:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+/* ----------------------------- */
+/* 📱 MOBILE MENU */
+/* ----------------------------- */
+
+@media (max-width: 768px) {
+  .nav-links {
+    position: absolute;
+    top: 70px;
+    right: 0;
+    background: rgba(255, 228, 241, 0.75);
+    backdrop-filter: blur(12px);
+    width: 100%;
+    flex-direction: column;
+    padding: 20px 0;
+    gap: 20px;
+    transform: translateY(-300px);
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.3s ease;
+  }
+
+  body.dark .nav-links {
+    background: rgba(30, 30, 30, 0.75);
+  }
+
+  .nav-links.open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .desktop-toggle {
+    display: none;
+  }
+
+  .mobile-toggle {
+    display: block;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+}
+
+/* DESKTOP ONLY */
+.desktop-toggle {
+  display: block;
+}
+
+.mobile-toggle {
+  display: none;
+}
+
+/* -------------------------------------- */
+/* ✨ ANIMACIÓN DEL LOGO AL CARGAR */
+/* -------------------------------------- */
+
+.logo-animated {
+  opacity: 0;
+  transform: scale(0.6);
+  animation: logoFadeIn 0.9s ease-out forwards;
+}
+
+@keyframes logoFadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.6) rotate(-8deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.05) rotate(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}

@@ -1,0 +1,105 @@
+.carrusel-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 40px auto;
+  text-align: center;
+}
+
+.carrusel-title {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+}
+
+.carrusel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.carrusel {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  gap: 20px;
+  padding: 10px;
+  scroll-snap-type: x mandatory;
+}
+
+.carrusel::-webkit-scrollbar {
+  display: none;
+}
+
+.carrusel-item {
+  min-width: 200px;
+  background: white;
+  border-radius: 14px;
+  padding: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+  transition: transform .25s ease;
+  scroll-snap-align: center;
+}
+
+.carrusel-item:hover {
+  transform: scale(1.05);
+}
+
+.carrusel-img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.old-price {
+  text-decoration: line-through;
+  color: #888;
+  margin: 5px 0;
+}
+
+.offer-price {
+  color: #e60073;
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.add-btn {
+  margin-top: 10px;
+  padding: 8px 15px;
+  background: #e60073;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.add-btn:hover {
+  background: #ff3385;
+}
+
+.arrow {
+  background: #e60073;
+  color: white;
+  border: none;
+  font-size: 2rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  position: absolute;
+  z-index: 10;
+  transition: background .2s;
+}
+
+.arrow.left {
+  left: -10px;
+}
+
+.arrow.right {
+  right: -10px;
+}
+
+.arrow:hover {
+  background: #ff3385;
+}

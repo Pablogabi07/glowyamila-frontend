@@ -1,0 +1,83 @@
+.offer-slider {
+  width: 100%;
+  max-width: 900px;
+  margin: 40px auto;
+  text-align: center;
+}
+
+.slider-title {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+}
+
+.slider-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  transition: transform .3s;
+}
+
+.slider-card:hover {
+  transform: scale(1.02);
+}
+
+.slider-image {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+.slider-info h3 {
+  margin: 0;
+}
+
+.old-price {
+  text-decoration: line-through;
+  color: #888;
+  margin: 5px 0;
+}
+
+.offer-price {
+  color: #e60073;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.slider-btn {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background: #e60073;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.slider-btn:hover {
+  background: #ff3385;
+}
+
+/* Dots */
+.slider-dots {
+  margin-top: 15px;
+}
+
+.dot {
+  height: 12px;
+  width: 12px;
+  margin: 0 5px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.dot.active {
+  background-color: #e60073;
+}

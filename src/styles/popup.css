@@ -1,0 +1,116 @@
+.cart-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 300;
+}
+
+.popup-content {
+  background: white;
+  width: 90%;
+  max-width: 450px;
+  padding: 25px;
+  border-radius: 12px;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.qty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.qty button {
+  padding: 4px 10px;
+  background: #eee;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.remove {
+  background: #ff4f4f;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.whatsapp-btn {
+  width: 100%;
+  padding: 12px;
+  background: #25d366;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  margin-top: 15px;
+  cursor: pointer;
+}
+
+.clear-btn {
+  width: 100%;
+  padding: 12px;
+  background: #ff4f4f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.cart-total { display: flex; justify-content: space-between; font-size: 1.2rem; margin: 20px 0; padding: 12px; background: #f7f7f7; border-radius: 10px; border: 1px solid #eee; }
+
+body.dark .cart-total {
+  background: #333;
+  border-color: #555;
+  color: #eee;
+}
+
+.item-info { display: flex; flex-direction: column; gap: 4px; }
+
+.item-name { font-weight: 600; font-size: 1rem; } 
+
+.item-subtotal { font-size: 0.9rem; color: #666; }
+
+body.dark .item-subtotal {
+  color: #ccc;
+}
+
+.continue-btn { width: 100%; padding: 12px; background: #888; color: white; border: none; border-radius: 8px; margin-top: 10px; cursor: pointer; transition: 0.2s; }
+
+.continue-btn:hover { background: #666; } 
+
+.popup-animate { animation: popupIn 0.25s ease; }
+
+@keyframes popupIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } } 
+
+body.dark .item-subtotal { color: #ccc; } 
+
+body.dark .continue-btn { background: #555; } 
+
+body.dark .continue-btn:hover { background: #444; }

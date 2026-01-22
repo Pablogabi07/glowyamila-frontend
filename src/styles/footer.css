@@ -1,0 +1,122 @@
+.footer {
+  background: #ffd6e8; /* rosa pastel */
+  padding: 40px 20px;
+  margin-top: 40px;
+  text-align: center;
+  border-top: 2px solid #ffb3d6;
+}
+
+.footer-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.footer-logo {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #cc2e72;
+  margin-bottom: 10px;
+}
+
+.footer-text {
+  font-size: 1rem;
+  color: #444;
+  margin-bottom: 20px;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  margin-bottom: 20px;
+}
+
+.footer-links a {
+  color: #cc2e72;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.footer-links a:hover {
+  color: #ff69b4;
+}
+
+.footer-social {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.social-icon {
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.social-icon:hover {
+  transform: scale(1.2);
+}
+
+.footer-copy {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 10px;
+}
+
+/* 🌙 MODO OSCURO */
+body.dark .footer {
+  background: #1e1e1e;
+  border-top-color: #333;
+}
+
+body.dark .footer-logo {
+  color: #ff9ad0;
+}
+
+body.dark .footer-text,
+body.dark .footer-copy {
+  color: #ddd;
+}
+
+body.dark .footer-links a {
+  color: #ff9ad0;
+}
+
+body.dark .footer-links a:hover {
+  color: #ff69b4;
+}
+
+body.dark .social-icon {
+  color: #ff9ad0;
+}
+
+.footer-credit {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.footer-credit a {
+  color: #cc2e72; /* rosa fuerte */
+  font-weight: 700; /* más destacado */
+  text-decoration: underline; /* resalta sin exagerar */
+  transition: 0.2s;
+}
+
+.footer-credit a:hover {
+  color: #ff69b4; /* rosa GlowYamila */
+}
+
+/* Modo oscuro */
+body.dark .footer-credit {
+  color: #ddd;
+}
+
+body.dark .footer-credit a {
+  color: #ff9ad0;
+}
+
+body.dark .footer-credit a:hover {
+  color: #ff69b4;
+}
