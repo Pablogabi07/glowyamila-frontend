@@ -7,10 +7,22 @@ export default function CarruselOfertas() {
   const { addToCart } = useCart()
   const carouselRef = useRef(null)
 
+  const API_URL = import.meta.env.VITE_API_URL
+
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/offers`)
+    fetch(`${API_URL}/api/offers`)
       .then(res => res.json())
-      .then(data => setOffers(data))
+      .then(data => {
+        // 🔥 Fix para imágenes viejas con localhost
+        const cleaned = data.map(p => ({
+          ...p,
+          imageUrl: p.imageUrl
+            ? p.imageUrl.replace('http://localhost:4000', '')
+            : ''
+        }))
+
+        setOffers(cleaned)
+      })
   }, [])
 
   // ⭐ Autoplay cada 3.5 segundos
@@ -50,9 +62,10 @@ export default function CarruselOfertas() {
           {offers.map(p => (
             <div key={p.id} className="carrusel-item">
               <img
-                src={`${import.meta.env.VITE_API_URL}${p.imageUrl}`}
+                src={`${API_URL}${p.imageUrl}`}
                 alt={p.name}
                 className="carrusel-img"
+                onError={(e) => (e.target.src = '/placeholder.jpg')}
               />
 
               <h3>{p.name}</h3>

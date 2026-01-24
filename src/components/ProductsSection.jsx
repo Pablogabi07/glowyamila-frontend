@@ -6,10 +6,22 @@ import '../styles/products.css'
 export default function ProductsSection() {
   const [products, setProducts] = useState([])
 
+  const API_URL = import.meta.env.VITE_API_URL
+
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/products`)
+    fetch(`${API_URL}/api/products`)
       .then(res => res.json())
-      .then(data => setProducts(data))
+      .then(data => {
+        // 🔥 Fix para productos viejos con localhost
+        const cleaned = data.map(p => ({
+          ...p,
+          imageUrl: p.imageUrl
+            ? p.imageUrl.replace('http://localhost:4000', '')
+            : ''
+        }))
+
+        setProducts(cleaned)
+      })
   }, [])
 
   return (

@@ -9,10 +9,22 @@ import '../styles/ofertas.css'
 export default function Ofertas() {
   const [offers, setOffers] = useState([])
 
+  const API_URL = import.meta.env.VITE_API_URL
+
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/offers`)
+    fetch(`${API_URL}/api/offers`)
       .then(res => res.json())
-      .then(data => setOffers(data))
+      .then(data => {
+        // 🔥 Fix para imágenes viejas con localhost
+        const cleaned = data.map(p => ({
+          ...p,
+          imageUrl: p.imageUrl
+            ? p.imageUrl.replace('http://localhost:4000', '')
+            : ''
+        }))
+
+        setOffers(cleaned)
+      })
   }, [])
 
   return (
@@ -26,9 +38,10 @@ export default function Ofertas() {
           {offers.map(p => (
             <div key={p.id} className="oferta-card">
               <img
-                src={`${import.meta.env.VITE_API_URL}${p.imageUrl}`}
+                src={`${API_URL}${p.imageUrl}`}
                 alt={p.name}
                 className="oferta-img"
+                onError={(e) => (e.target.src = '/placeholder.jpg')}
               />
 
               <h3>{p.name}</h3>

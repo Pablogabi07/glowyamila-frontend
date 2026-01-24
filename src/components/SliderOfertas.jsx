@@ -7,9 +7,11 @@ export default function SliderOfertas() {
   const [index, setIndex] = useState(0)
   const { addToCart } = useCart()
 
+  const API_URL = import.meta.env.VITE_API_URL
+
   // Cargar ofertas desde el backend
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/offers`)
+    fetch(`${API_URL}/api/offers`)
       .then(res => res.json())
       .then(data => setOffers(data))
   }, [])
@@ -29,15 +31,21 @@ export default function SliderOfertas() {
 
   const current = offers[index]
 
+  // Fix para imágenes viejas con localhost
+  const fixedImageUrl = current.imageUrl
+    ? current.imageUrl.replace('http://localhost:4000', '')
+    : ''
+
   return (
     <div className="offer-slider">
       <h2 className="slider-title">🔥 Ofertas especiales</h2>
 
       <div className="slider-card">
         <img
-          src={`${import.meta.env.VITE_API_URL}${current.imageUrl}`}
+          src={`${API_URL}${fixedImageUrl}`}
           alt={current.name}
           className="slider-image"
+          onError={(e) => (e.target.src = '/placeholder.jpg')}
         />
 
         <div className="slider-info">
@@ -46,7 +54,6 @@ export default function SliderOfertas() {
           <p className="old-price">${current.price}</p>
           <p className="offer-price">${current.offerPrice}</p>
 
-          {/* ⭐ BOTÓN REAL DE AGREGAR AL CARRITO ⭐ */}
           <button
             className="slider-btn"
             onClick={() => addToCart(current)}

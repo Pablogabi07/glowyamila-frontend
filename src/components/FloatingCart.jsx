@@ -8,6 +8,7 @@ export default function FloatingCart() {
   const [animateCart, setAnimateCart] = useState(false)
 
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0)
+
   const totalPrice = cart.reduce((acc, item) => {
     const price = item.isOffer ? item.offerPrice : item.price
     return acc + price * item.quantity
