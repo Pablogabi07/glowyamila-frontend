@@ -3,18 +3,13 @@ import { useCart } from '../context/CartContext'
 export default function ProductCard({ product }) {
   const { addToCart } = useCart()
 
-  // URL base del backend
-  const API_URL = import.meta.env.VITE_API_URL
-
-  // Fix para imágenes viejas que quedaron con localhost
-  const fixedImageUrl = product.imageUrl
-    ? product.imageUrl.replace('http://localhost:4000', '')
-    : ''
+  // Ahora la imagen ya viene con URL completa desde Supabase
+  const imageUrl = product.imageUrl || '/placeholder.jpg'
 
   return (
     <div className="product-card">
       <img
-        src={`${API_URL}${fixedImageUrl}`}
+        src={imageUrl}
         alt={product.name}
         onError={(e) => (e.target.src = '/placeholder.jpg')}
       />

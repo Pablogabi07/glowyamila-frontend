@@ -7,25 +7,24 @@ export default function CarruselOfertas() {
   const { addToCart } = useCart()
   const carouselRef = useRef(null)
 
-  const API_URL = import.meta.env.VITE_API_URL
-
   useEffect(() => {
-    fetch(`${API_URL}/api/offers`)
+    fetch("https://kloliqzkdsegsutubzoh.functions.supabase.co/get-products")
       .then(res => res.json())
       .then(data => {
-        // 🔥 Fix para imágenes viejas con localhost
-        const cleaned = data.map(p => ({
-          ...p,
-          imageUrl: p.imageUrl
-            ? p.imageUrl.replace('http://localhost:4000', '')
-            : ''
-        }))
+        const filtered = data
+          .filter(p => p.is_offer)
+          .map(p => ({
+            ...p,
+            imageUrl: p.image_url,
+            isOffer: p.is_offer,
+            offerPrice: p.offer_price,
+            stock: p.stock
+          }))
 
-        setOffers(cleaned)
+        setOffers(filtered)
       })
   }, [])
 
-  // ⭐ Autoplay cada 3.5 segundos
   useEffect(() => {
     if (offers.length === 0) return
 
@@ -59,28 +58,37 @@ export default function CarruselOfertas() {
         <button className="arrow left" onClick={scrollLeft}>‹</button>
 
         <div className="carrusel" ref={carouselRef}>
-          {offers.map(p => (
-            <div key={p.id} className="carrusel-item">
-              <img
-                src={`${API_URL}${p.imageUrl}`}
-                alt={p.name}
-                className="carrusel-img"
-                onError={(e) => (e.target.src = '/placeholder.jpg')}
-              />
+          {offers.map(p => {
+            const outOfStock = p.stock <= 0
 
-              <h3>{p.name}</h3>
+            return (
+              <div key={p.id} className="carrusel-item">
+                <img
+                  src={p.imageUrl}
+                  alt={p.name}
+                  className="carrusel-img"
+                  onError={(e) => (e.target.src = '/placeholder.jpg')}
+                />
 
-              <p className="old-price">${p.price}</p>
-              <p className="offer-price">${p.offerPrice}</p>
+                <h3>{p.name}</h3>
 
-              <button
-                className="add-btn"
-                onClick={() => addToCart(p)}
-              >
-                🛒 Agregar
-              </button>
-            </div>
-          ))}
+                <p className="old-price">${p.price}</p>
+                <p className="offer-price">${p.offerPrice}</p>
+
+                <p className={`stock ${outOfStock ? 'no-stock' : ''}`}>
+                  {outOfStock ? 'Sin stock' : `Stock: ${p.stock}`}
+                </p>
+
+                <button
+                  className="add-btn"
+                  disabled={outOfStock}
+                  onClick={() => addToCart(p)}
+                >
+                  {outOfStock ? 'No disponible' : '🛒 Agregar'}
+                </button>
+              </div>
+            )
+          })}
         </div>
 
         <button className="arrow right" onClick={scrollRight}>›</button>

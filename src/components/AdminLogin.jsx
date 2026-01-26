@@ -1,39 +1,63 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../supabase'
 import '../styles/admin.css'
 
 export default function AdminLogin() {
-  const [token, setToken] = useState('')
   const navigate = useNavigate()
 
-  const handleSubmit = (e) => {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false)
+
+  const handleLogin = async (e) => {
     e.preventDefault()
+    setLoading(true)
+    setError(null)
 
-    if (!token) return alert('Ingresá el token')
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    })
 
-    // Guardar token
-    localStorage.setItem('adminToken', token)
+    setLoading(false)
 
-    // Redirigir al panel
+    if (error) {
+      setError("Credenciales incorrectas")
+      return
+    }
+
+    // Guardamos sesión en localStorage
+    localStorage.setItem("adminSession", JSON.stringify(data.session))
+
     navigate('/admin/panel')
   }
 
   return (
-    <div className="admin-container">
-      <h2>Panel Administrativo</h2>
-      <p style={{ textAlign: 'center', marginBottom: '20px' }}>
-        Ingresá tu token de administrador
-      </p>
+    <div className="admin-login-container">
+      <h2>Acceso Administrador</h2>
 
-      <form onSubmit={handleSubmit} className="admin-login-form">
+      <form onSubmit={handleLogin} className="admin-login-form">
         <input
-          type="password"
-          placeholder="Token"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
+          type="email"
+          placeholder="Email del administrador"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
 
-        <button type="submit">Ingresar</button>
+        <input
+          type="password"
+          placeholder="Contraseña"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        {error && <p className="admin-error">{error}</p>}
+
+        <button type="submit" disabled={loading}>
+          {loading ? "Ingresando..." : "Ingresar"}
+        </button>
       </form>
     </div>
   )

@@ -7,13 +7,22 @@ export default function SliderOfertas() {
   const [index, setIndex] = useState(0)
   const { addToCart } = useCart()
 
-  const API_URL = import.meta.env.VITE_API_URL
-
-  // Cargar ofertas desde el backend
   useEffect(() => {
-    fetch(`${API_URL}/api/offers`)
+    fetch("https://kloliqzkdsegsutubzoh.functions.supabase.co/get-products")
       .then(res => res.json())
-      .then(data => setOffers(data))
+      .then(data => {
+        const filtered = data
+          .filter(p => p.is_offer)
+          .map(p => ({
+            ...p,
+            imageUrl: p.image_url,
+            isOffer: p.is_offer,
+            offerPrice: p.offer_price,
+            stock: p.stock
+          }))
+
+        setOffers(filtered)
+      })
   }, [])
 
   // Autoplay cada 4 segundos
@@ -30,11 +39,7 @@ export default function SliderOfertas() {
   if (offers.length === 0) return null
 
   const current = offers[index]
-
-  // Fix para imágenes viejas con localhost
-  const fixedImageUrl = current.imageUrl
-    ? current.imageUrl.replace('http://localhost:4000', '')
-    : ''
+  const outOfStock = current.stock <= 0
 
   return (
     <div className="offer-slider">
@@ -42,7 +47,7 @@ export default function SliderOfertas() {
 
       <div className="slider-card">
         <img
-          src={`${API_URL}${fixedImageUrl}`}
+          src={current.imageUrl}
           alt={current.name}
           className="slider-image"
           onError={(e) => (e.target.src = '/placeholder.jpg')}
@@ -54,11 +59,16 @@ export default function SliderOfertas() {
           <p className="old-price">${current.price}</p>
           <p className="offer-price">${current.offerPrice}</p>
 
+          <p className={`stock ${outOfStock ? 'no-stock' : ''}`}>
+            {outOfStock ? 'Sin stock' : `Stock: ${current.stock}`}
+          </p>
+
           <button
             className="slider-btn"
+            disabled={outOfStock}
             onClick={() => addToCart(current)}
           >
-            🛒 Agregar al carrito
+            {outOfStock ? 'No disponible' : '🛒 Agregar al carrito'}
           </button>
         </div>
       </div>

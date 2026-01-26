@@ -12,8 +12,29 @@ export default function CartPopup() {
     return acc + price * item.quantity
   }, 0)
 
-  // MENSAJE DINÁMICO DE WHATSAPP
-  const sendWhatsApp = () => {
+  // 🔥 NUEVO: Enviar pedido + descontar stock
+  const sendOrder = async () => {
+    if (cart.length === 0) return
+
+    // 1️⃣ Llamar a Supabase para descontar stock
+    const res = await fetch(
+      "https://kloliqzkdsegsutubzoh.functions.supabase.co/decrease-stock",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cart })
+      }
+    )
+
+    const data = await res.json()
+
+    // ❌ Si no hay stock suficiente
+    if (!res.ok) {
+      alert(data.error)
+      return
+    }
+
+    // 2️⃣ Armar mensaje de WhatsApp
     const br = "%0A"
 
     const itemsText = cart
@@ -33,8 +54,12 @@ export default function CartPopup() {
       br +
       `¿Está disponible?`
 
-    const phone = "5491133007172" // Cambiar por el número real
+    const phone = "5491133007172"
 
+    // 3️⃣ Vaciar carrito
+    clearCart()
+
+    // 4️⃣ Abrir WhatsApp
     window.open(`https://wa.me/${phone}?text=${finalMessage}`)
   }
 
@@ -91,8 +116,8 @@ export default function CartPopup() {
           Seguir comprando
         </button>
 
-        {/* ENVIAR PEDIDO */}
-        <button onClick={sendWhatsApp} className="whatsapp-btn">
+        {/* 🔥 ENVIAR PEDIDO (con stock real) */}
+        <button onClick={sendOrder} className="whatsapp-btn">
           Enviar pedido
         </button>
 

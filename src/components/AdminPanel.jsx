@@ -1,29 +1,37 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../supabase'
 import '../styles/admin.css'
 
 export default function AdminPanel() {
   const navigate = useNavigate()
-  const token = localStorage.getItem('adminToken')
 
-  // Redirección si no hay token
+  // 🔐 Protección de ruta con Supabase Auth
   useEffect(() => {
-    if (!token) navigate('/admin')
-  }, [token, navigate])
+    const session = JSON.parse(localStorage.getItem("adminSession"))
+
+    if (!session) {
+      navigate('/admin')
+      return
+    }
+
+    const now = Math.floor(Date.now() / 1000)
+    if (session.expires_at < now) {
+      localStorage.removeItem("adminSession")
+      navigate('/admin')
+    }
+  }, [navigate])
 
   const [products, setProducts] = useState([])
   const [filtered, setFiltered] = useState([])
 
-  // Filtros
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
   const [onlyOffers, setOnlyOffers] = useState(false)
 
-  // Paginación
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
 
-  // Formulario
   const [form, setForm] = useState({
     id: null,
     name: '',
@@ -32,12 +40,12 @@ export default function AdminPanel() {
     category: '',
     isOffer: false,
     offerPrice: '',
+    stock: '',
     imageUrl: ''
   })
 
   const [imageFile, setImageFile] = useState(null)
 
-  // Modo oscuro
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem('darkMode') === 'true'
   )
@@ -47,15 +55,20 @@ export default function AdminPanel() {
     localStorage.setItem('darkMode', darkMode)
   }, [darkMode])
 
-  // Cargar productos
   const loadProducts = () => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/admin/products`, {
-      headers: { 'x-admin-token': token }
-    })
+    fetch("https://kloliqzkdsegsutubzoh.functions.supabase.co/get-products")
       .then(res => res.json())
       .then(data => {
-        setProducts(data)
-        setFiltered(data)
+        const normalized = data.map(p => ({
+          ...p,
+          imageUrl: p.image_url,
+          isOffer: p.is_offer,
+          offerPrice: p.offer_price,
+          stock: p.stock
+        }))
+
+        setProducts(normalized)
+        setFiltered(normalized)
       })
   }
 
@@ -63,7 +76,6 @@ export default function AdminPanel() {
     loadProducts()
   }, [])
 
-  // Filtrado
   useEffect(() => {
     let result = [...products]
 
@@ -88,7 +100,6 @@ export default function AdminPanel() {
     setCurrentPage(1)
   }, [search, categoryFilter, onlyOffers, products])
 
-  // Paginación
   const indexOfLast = currentPage * itemsPerPage
   const indexOfFirst = indexOfLast - itemsPerPage
   const currentItems = filtered.slice(indexOfFirst, indexOfLast)
@@ -98,81 +109,55 @@ export default function AdminPanel() {
     if (page >= 1 && page <= totalPages) setCurrentPage(page)
   }
 
-  // Subir imagen
-  const uploadImage = async () => {
-    if (!imageFile) return form.imageUrl
-
-    const formData = new FormData()
-    formData.append('image', imageFile)
-
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/upload`, {
-      method: 'POST',
-      headers: { 'x-admin-token': token },
-      body: formData
-    })
-
-    const data = await res.json()
-    return data.imageUrl
-  }
-
-  // Crear o editar producto
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    const finalImageUrl = await uploadImage()
+    const formData = new FormData()
+    formData.append("name", form.name)
+    formData.append("description", form.description)
+    formData.append("price", form.price)
+    formData.append("category", form.category)
+    formData.append("is_offer", form.isOffer)
+    formData.append("offer_price", form.isOffer ? form.offerPrice : "")
+    formData.append("stock", form.stock)
 
-    const payload = {
-      ...form,
-      price: Number(form.price),
-      offerPrice: form.isOffer ? Number(form.offerPrice) : null,
-      imageUrl: finalImageUrl
+    if (imageFile) {
+      formData.append("image", imageFile)
     }
 
-    const method = form.id ? 'PUT' : 'POST'
-    const url = form.id
-      ? `${import.meta.env.VITE_API_URL}/api/admin/products/${form.id}`
-      : `${import.meta.env.VITE_API_URL}/api/admin/products`
+    if (form.id) {
+      formData.append("id", form.id)
+      formData.append("current_image", form.imageUrl)
 
-    await fetch(url, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-admin-token': token
-      },
-      body: JSON.stringify(payload)
-    })
+      await fetch("https://kloliqzkdsegsutubzoh.functions.supabase.co/update-product", {
+        method: "POST",
+        body: formData
+      })
+    } else {
+      await fetch("https://kloliqzkdsegsutubzoh.functions.supabase.co/create-product", {
+        method: "POST",
+        body: formData
+      })
+    }
 
-    alert('Producto guardado')
+    alert("Producto guardado")
 
     setForm({
       id: null,
-      name: '',
-      description: '',
-      price: '',
-      category: '',
+      name: "",
+      description: "",
+      price: "",
+      category: "",
       isOffer: false,
-      offerPrice: '',
-      imageUrl: ''
+      offerPrice: "",
+      stock: "",
+      imageUrl: ""
     })
 
     setImageFile(null)
     loadProducts()
   }
 
-  // ELIMINAR PRODUCTO
-  const deleteProduct = async (id) => {
-    if (!confirm('¿Eliminar producto?')) return
-
-    await fetch(`${import.meta.env.VITE_API_URL}/api/admin/products/${id}`, {
-      method: 'DELETE',
-      headers: { 'x-admin-token': token }
-    })
-
-    setProducts(prev => prev.filter(p => p.id !== id))
-    setFiltered(prev => prev.filter(p => p.id !== id))
-  }
-
-  // Editar producto
   const editProduct = (p) => {
     setForm({
       id: p.id,
@@ -181,27 +166,41 @@ export default function AdminPanel() {
       price: p.price,
       category: p.category,
       isOffer: p.isOffer,
-      offerPrice: p.offerPrice || '',
+      offerPrice: p.offerPrice || "",
+      stock: p.stock,
       imageUrl: p.imageUrl
     })
   }
 
-  // Limpiar filtros
+  const deleteProduct = async (id) => {
+    if (!confirm("¿Eliminar producto?")) return
+
+    const formData = new FormData()
+    formData.append("id", id)
+
+    await fetch("https://kloliqzkdsegsutubzoh.functions.supabase.co/delete-product", {
+      method: "POST",
+      body: formData
+    })
+
+    setProducts(prev => prev.filter(p => p.id !== id))
+    setFiltered(prev => prev.filter(p => p.id !== id))
+  }
+
   const clearFilters = () => {
     setSearch('')
     setCategoryFilter('')
     setOnlyOffers(false)
   }
 
-  // Logout
-  const handleLogout = () => {
-    localStorage.removeItem('adminToken')
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    localStorage.removeItem("adminSession")
     navigate('/admin')
   }
 
   return (
     <div className="admin-container">
-
       <button className="logout-btn" onClick={handleLogout}>
         Cerrar sesión
       </button>
@@ -212,7 +211,6 @@ export default function AdminPanel() {
 
       <h2>Administrar Productos</h2>
 
-      {/* FILTROS */}
       <div className="admin-filters">
         <input
           type="text"
@@ -242,7 +240,6 @@ export default function AdminPanel() {
         </button>
       </div>
 
-      {/* SELECTOR ITEMS POR PÁGINA */}
       <div className="items-per-page">
         <label>Mostrar:</label>
         <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
@@ -255,7 +252,6 @@ export default function AdminPanel() {
 
       <div className="admin-separator"></div>
 
-      {/* FORMULARIO */}
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -303,12 +299,20 @@ export default function AdminPanel() {
           />
         )}
 
+        {/* 🔥 STOCK REAL */}
+        <input
+          type="number"
+          placeholder="Stock"
+          value={form.stock}
+          onChange={(e) => setForm({ ...form, stock: e.target.value })}
+        />
+
         <label>Imagen del producto:</label>
         <input type="file" onChange={(e) => setImageFile(e.target.files[0])} />
 
         {form.imageUrl && (
           <img
-            src={`${import.meta.env.VITE_API_URL}${form.imageUrl}`}
+            src={form.imageUrl}
             className="admin-image-preview"
             alt="preview"
           />
@@ -321,13 +325,12 @@ export default function AdminPanel() {
 
       <div className="admin-separator"></div>
 
-      {/* LISTADO */}
       <h3>Productos existentes</h3>
 
       {currentItems.map(p => (
         <div key={p.id} className="admin-product-row">
           <img
-            src={`${import.meta.env.VITE_API_URL}${p.imageUrl}`}
+            src={p.imageUrl}
             alt={p.name}
             className="admin-thumb"
           />
@@ -338,6 +341,7 @@ export default function AdminPanel() {
             <p>Precio: ${p.price}</p>
             {p.isOffer && <p>Oferta: ${p.offerPrice}</p>}
             <p>Categoría: {p.category}</p>
+            <p>Stock: {p.stock}</p>
           </div>
 
           <button onClick={() => editProduct(p)}>Editar</button>
@@ -347,7 +351,6 @@ export default function AdminPanel() {
         </div>
       ))}
 
-      {/* PAGINACIÓN */}
       <div className="pagination">
         <button onClick={() => changePage(currentPage - 1)}>⏮️</button>
 

@@ -6,28 +6,25 @@ import '../styles/products.css'
 export default function ProductsSection() {
   const [products, setProducts] = useState([])
 
-  const API_URL = import.meta.env.VITE_API_URL
-
   useEffect(() => {
-    fetch(`${API_URL}/api/products`)
+    fetch("https://kloliqzkdsegsutubzoh.functions.supabase.co/get-products")
       .then(res => res.json())
       .then(data => {
-        // 🔥 Fix para productos viejos con localhost
-        const cleaned = data.map(p => ({
+        const normalized = data.map(p => ({
           ...p,
-          imageUrl: p.imageUrl
-            ? p.imageUrl.replace('http://localhost:4000', '')
-            : ''
+          imageUrl: p.image_url,
+          isOffer: p.is_offer,
+          offerPrice: p.offer_price,
+          stock: p.stock
         }))
 
-        setProducts(cleaned)
+        setProducts(normalized)
       })
   }, [])
 
   return (
     <section id="products" className="products-section">
 
-      {/* ⭐ CARRUSEL DE OFERTAS ⭐ */}
       <CarruselOfertas />
 
       <h2>Productos</h2>

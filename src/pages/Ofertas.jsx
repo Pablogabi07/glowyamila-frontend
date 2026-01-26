@@ -4,26 +4,28 @@ import FloatingCart from '../components/FloatingCart'
 import CartPopup from '../components/CartPopup'
 import WhatsAppButton from '../components/WhatsAppButton'
 import Footer from '../components/Footer'
+import { useCart } from '../context/CartContext'
 import '../styles/ofertas.css'
 
 export default function Ofertas() {
   const [offers, setOffers] = useState([])
-
-  const API_URL = import.meta.env.VITE_API_URL
+  const { addToCart } = useCart()
 
   useEffect(() => {
-    fetch(`${API_URL}/api/offers`)
+    fetch("https://kloliqzkdsegsutubzoh.functions.supabase.co/get-products")
       .then(res => res.json())
       .then(data => {
-        // 🔥 Fix para imágenes viejas con localhost
-        const cleaned = data.map(p => ({
-          ...p,
-          imageUrl: p.imageUrl
-            ? p.imageUrl.replace('http://localhost:4000', '')
-            : ''
-        }))
+        const filtered = data
+          .filter(p => p.is_offer)
+          .map(p => ({
+            ...p,
+            imageUrl: p.image_url,
+            isOffer: p.is_offer,
+            offerPrice: p.offer_price,
+            stock: p.stock
+          }))
 
-        setOffers(cleaned)
+        setOffers(filtered)
       })
   }, [])
 
@@ -35,25 +37,37 @@ export default function Ofertas() {
         <h2 className="ofertas-title">🔥 Ofertas Especiales</h2>
 
         <div className="ofertas-grid">
-          {offers.map(p => (
-            <div key={p.id} className="oferta-card">
-              <img
-                src={`${API_URL}${p.imageUrl}`}
-                alt={p.name}
-                className="oferta-img"
-                onError={(e) => (e.target.src = '/placeholder.jpg')}
-              />
+          {offers.map(p => {
+            const outOfStock = p.stock <= 0
 
-              <h3>{p.name}</h3>
+            return (
+              <div key={p.id} className="oferta-card">
+                <img
+                  src={p.imageUrl}
+                  alt={p.name}
+                  className="oferta-img"
+                  onError={(e) => (e.target.src = '/placeholder.jpg')}
+                />
 
-              <p className="old-price">${p.price}</p>
-              <p className="offer-price">${p.offerPrice}</p>
+                <h3>{p.name}</h3>
 
-              <button className="add-btn">
-                Agregar al carrito
-              </button>
-            </div>
-          ))}
+                <p className="old-price">${p.price}</p>
+                <p className="offer-price">${p.offerPrice}</p>
+
+                <p className={`stock ${outOfStock ? 'no-stock' : ''}`}>
+                  {outOfStock ? 'Sin stock' : `Stock: ${p.stock}`}
+                </p>
+
+                <button
+                  className={`add-btn ${outOfStock ? 'disabled' : ''}`}
+                  disabled={outOfStock}
+                  onClick={() => addToCart(p)}
+                >
+                  {outOfStock ? 'No disponible' : 'Agregar al carrito'}
+                </button>
+              </div>
+            )
+          })}
         </div>
       </section>
 
