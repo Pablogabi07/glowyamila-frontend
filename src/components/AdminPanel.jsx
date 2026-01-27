@@ -6,7 +6,7 @@ import '../styles/admin.css'
 export default function AdminPanel() {
   const navigate = useNavigate()
 
-  // 🔐 Protección de ruta con Supabase Auth
+  // 🔐 Protección de ruta
   useEffect(() => {
     const session = JSON.parse(localStorage.getItem("adminSession"))
 
@@ -55,27 +55,54 @@ export default function AdminPanel() {
     localStorage.setItem('darkMode', darkMode)
   }, [darkMode])
 
-  const loadProducts = () => {
-    fetch("https://kloliqzkdsegsutubzoh.functions.supabase.co/get-products")
-      .then(res => res.json())
-      .then(data => {
-        const normalized = data.map(p => ({
-          ...p,
-          imageUrl: p.image_url,
-          isOffer: p.is_offer,
-          offerPrice: p.offer_price,
-          stock: p.stock
-        }))
+  // 📤 Subir imagen a Supabase Storage
+  const uploadImage = async (file) => {
+    const fileName = `${Date.now()}-${file.name}`
 
-        setProducts(normalized)
-        setFiltered(normalized)
-      })
+    const { error } = await supabase.storage
+      .from('products')
+      .upload(fileName, file)
+
+    if (error) {
+      console.error("Error subiendo imagen:", error)
+      return null
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('products')
+      .getPublicUrl(fileName)
+
+    return urlData.publicUrl
+  }
+
+  // 🔥 Cargar productos desde Supabase
+  const loadProducts = async () => {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+
+    if (error) {
+      console.error("Error cargando productos:", error)
+      return
+    }
+
+    const normalized = data.map(p => ({
+      ...p,
+      imageUrl: p.image_url,
+      isOffer: p.is_offer,
+      offerPrice: p.offer_price,
+      stock: p.stock
+    }))
+
+    setProducts(normalized)
+    setFiltered(normalized)
   }
 
   useEffect(() => {
     loadProducts()
   }, [])
 
+  // 🔍 Filtros
   useEffect(() => {
     let result = [...products]
 
@@ -109,35 +136,36 @@ export default function AdminPanel() {
     if (page >= 1 && page <= totalPages) setCurrentPage(page)
   }
 
+  // 💾 Crear o actualizar producto
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    const formData = new FormData()
-    formData.append("name", form.name)
-    formData.append("description", form.description)
-    formData.append("price", form.price)
-    formData.append("category", form.category)
-    formData.append("is_offer", form.isOffer)
-    formData.append("offer_price", form.isOffer ? form.offerPrice : "")
-    formData.append("stock", form.stock)
+    let imageUrl = form.imageUrl
 
     if (imageFile) {
-      formData.append("image", imageFile)
+      imageUrl = await uploadImage(imageFile)
+    }
+
+    const payload = {
+      name: form.name,
+      description: form.description,
+      price: Number(form.price),
+      category: form.category,
+      is_offer: form.isOffer,
+      offer_price: form.isOffer ? Number(form.offerPrice) : null,
+      stock: Number(form.stock),
+      image_url: imageUrl
     }
 
     if (form.id) {
-      formData.append("id", form.id)
-      formData.append("current_image", form.imageUrl)
-
-      await fetch("https://kloliqzkdsegsutubzoh.functions.supabase.co/update-product", {
-        method: "POST",
-        body: formData
-      })
+      await supabase
+        .from('products')
+        .update(payload)
+        .eq('id', form.id)
     } else {
-      await fetch("https://kloliqzkdsegsutubzoh.functions.supabase.co/create-product", {
-        method: "POST",
-        body: formData
-      })
+      await supabase
+        .from('products')
+        .insert(payload)
     }
 
     alert("Producto guardado")
@@ -158,6 +186,7 @@ export default function AdminPanel() {
     loadProducts()
   }
 
+  // ✏ Editar producto
   const editProduct = (p) => {
     setForm({
       id: p.id,
@@ -172,16 +201,14 @@ export default function AdminPanel() {
     })
   }
 
+  // 🗑 Eliminar producto
   const deleteProduct = async (id) => {
     if (!confirm("¿Eliminar producto?")) return
 
-    const formData = new FormData()
-    formData.append("id", id)
-
-    await fetch("https://kloliqzkdsegsutubzoh.functions.supabase.co/delete-product", {
-      method: "POST",
-      body: formData
-    })
+    await supabase
+      .from('products')
+      .delete()
+      .eq('id', id)
 
     setProducts(prev => prev.filter(p => p.id !== id))
     setFiltered(prev => prev.filter(p => p.id !== id))
@@ -211,6 +238,7 @@ export default function AdminPanel() {
 
       <h2>Administrar Productos</h2>
 
+      {/* FILTROS */}
       <div className="admin-filters">
         <input
           type="text"
@@ -240,6 +268,7 @@ export default function AdminPanel() {
         </button>
       </div>
 
+      {/* PAGINACIÓN */}
       <div className="items-per-page">
         <label>Mostrar:</label>
         <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
@@ -252,6 +281,7 @@ export default function AdminPanel() {
 
       <div className="admin-separator"></div>
 
+      {/* FORMULARIO */}
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -299,7 +329,6 @@ export default function AdminPanel() {
           />
         )}
 
-        {/* 🔥 STOCK REAL */}
         <input
           type="number"
           placeholder="Stock"
@@ -325,6 +354,7 @@ export default function AdminPanel() {
 
       <div className="admin-separator"></div>
 
+      {/* LISTA DE PRODUCTOS */}
       <h3>Productos existentes</h3>
 
       {currentItems.map(p => (
@@ -351,6 +381,7 @@ export default function AdminPanel() {
         </div>
       ))}
 
+      {/* PAGINACIÓN */}
       <div className="pagination">
         <button onClick={() => changePage(currentPage - 1)}>⏮️</button>
 

@@ -1,4 +1,5 @@
 import { useCart } from '../context/CartContext'
+import { supabase } from '../supabase'
 import '../styles/popup.css'
 
 export default function CartPopup() {
@@ -12,29 +13,38 @@ export default function CartPopup() {
     return acc + price * item.quantity
   }, 0)
 
-  // 🔥 NUEVO: Enviar pedido + descontar stock
+  // 🟣 Enviar pedido con control de stock real
   const sendOrder = async () => {
     if (cart.length === 0) return
 
-    // 1️⃣ Llamar a Supabase para descontar stock
-    const res = await fetch(
-      "https://kloliqzkdsegsutubzoh.functions.supabase.co/decrease-stock",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cart })
+    // 1️⃣ Verificar stock en Supabase antes de enviar
+    for (const item of cart) {
+      const { data, error } = await supabase
+        .from('products')
+        .select('stock')
+        .eq('id', item.id)
+        .single()
+
+      if (error) {
+        alert("Error verificando stock.")
+        return
       }
-    )
 
-    const data = await res.json()
-
-    // ❌ Si no hay stock suficiente
-    if (!res.ok) {
-      alert(data.error)
-      return
+      if (data.stock < item.quantity) {
+        alert(`No hay suficiente stock de ${item.name}. Disponible: ${data.stock}`)
+        return
+      }
     }
 
-    // 2️⃣ Armar mensaje de WhatsApp
+    // 2️⃣ Descontar stock en Supabase usando la función SQL
+    for (const item of cart) {
+      await supabase.rpc('decrement_stock', {
+        product_id: item.id,
+        qty: item.quantity
+      })
+    }
+
+    // 3️⃣ Armar mensaje de WhatsApp
     const br = "%0A"
 
     const itemsText = cart
@@ -46,20 +56,20 @@ export default function CartPopup() {
       .join(br)
 
     const finalMessage =
-      `Hola! Quiero hacer un pedido:` + br +
+      `🛒 *Nuevo pedido*` + br +
       br +
       itemsText + br +
       br +
-      `Total: $${total}` + br +
+      `*Total:* $${total}` + br +
       br +
       `¿Está disponible?`
 
     const phone = "5491133007172"
 
-    // 3️⃣ Vaciar carrito
+    // 4️⃣ Vaciar carrito
     clearCart()
 
-    // 4️⃣ Abrir WhatsApp
+    // 5️⃣ Abrir WhatsApp
     window.open(`https://wa.me/${phone}?text=${finalMessage}`)
   }
 
@@ -116,7 +126,7 @@ export default function CartPopup() {
           Seguir comprando
         </button>
 
-        {/* 🔥 ENVIAR PEDIDO (con stock real) */}
+        {/* ENVIAR PEDIDO */}
         <button onClick={sendOrder} className="whatsapp-btn">
           Enviar pedido
         </button>

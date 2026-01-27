@@ -5,6 +5,7 @@ import CartPopup from '../components/CartPopup'
 import WhatsAppButton from '../components/WhatsAppButton'
 import Footer from '../components/Footer'
 import { useCart } from '../context/CartContext'
+import { supabase } from '../supabase'
 import '../styles/ofertas.css'
 
 export default function Ofertas() {
@@ -12,21 +13,30 @@ export default function Ofertas() {
   const { addToCart } = useCart()
 
   useEffect(() => {
-    fetch("https://kloliqzkdsegsutubzoh.functions.supabase.co/get-products")
-      .then(res => res.json())
-      .then(data => {
-        const filtered = data
-          .filter(p => p.is_offer)
-          .map(p => ({
-            ...p,
-            imageUrl: p.image_url,
-            isOffer: p.is_offer,
-            offerPrice: p.offer_price,
-            stock: p.stock
-          }))
+    const loadOffers = async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('is_offer', true)
+        .eq('active', true)
 
-        setOffers(filtered)
-      })
+      if (error) {
+        console.error("Error cargando ofertas:", error)
+        return
+      }
+
+      const normalized = data.map(p => ({
+        ...p,
+        imageUrl: p.image_url,
+        isOffer: p.is_offer,
+        offerPrice: p.offer_price,
+        stock: p.stock
+      }))
+
+      setOffers(normalized)
+    }
+
+    loadOffers()
   }, [])
 
   return (
