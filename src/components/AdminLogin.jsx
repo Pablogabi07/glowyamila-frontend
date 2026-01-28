@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '../supabase'
+import { supabase } from '../supabaseClient'
 import '../styles/admin.css'
 
 export default function AdminLogin() {
