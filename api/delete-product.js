@@ -1,38 +1,34 @@
-export const config = { runtime: "edge" }
+import { createClient } from '@supabase/supabase-js'
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
+)
 
-export default async function handler(req) {
+export default async function handler(req, res) {
   try {
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL"),
-      Deno.env.get("SUPABASE_KEY")
-    )
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' })
+    }
 
-    const form = await req.formData()
-    const id = Number(form.get("id"))
+    const form = await req.body
+    const id = Number(form.id)
 
     if (!id) {
-      return new Response(JSON.stringify({ error: "Missing product ID" }), {
-        status: 400,
-      })
+      return res.status(400).json({ error: 'Missing product ID' })
     }
 
     const { error } = await supabase
-      .from("products")
+      .from('products')
       .delete()
-      .eq("id", id)
+      .eq('id', id)
 
     if (error) {
-      return new Response(JSON.stringify({ error }), { status: 500 })
+      return res.status(500).json({ error: error.message })
     }
 
-    return new Response(JSON.stringify({ success: true }), {
-      headers: { "Content-Type": "application/json" },
-    })
+    return res.status(200).json({ success: true })
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-    })
+    return res.status(500).json({ error: err.message })
   }
 }

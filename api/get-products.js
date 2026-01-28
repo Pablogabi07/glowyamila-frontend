@@ -1,30 +1,23 @@
-export const config = { runtime: "edge" }
+import { createClient } from "@supabase/supabase-js"
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
+)
 
-export default async function handler(req) {
+export default async function handler(req, res) {
   try {
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL"),
-      Deno.env.get("SUPABASE_KEY")
-    )
-
     const { data, error } = await supabase
       .from("products")
       .select("*")
       .eq("active", true)
 
     if (error) {
-      return new Response(JSON.stringify({ error }), { status: 500 })
+      return res.status(500).json({ error: error.message })
     }
 
-    return new Response(JSON.stringify(data), {
-      headers: { "Content-Type": "application/json" },
-    })
-
+    return res.status(200).json(data)
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-    })
+    return res.status(500).json({ error: err.message })
   }
 }

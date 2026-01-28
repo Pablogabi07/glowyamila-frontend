@@ -1,52 +1,72 @@
-export const config = { runtime: "edge" }
+import { createClient } from '@supabase/supabase-js'
+import formidable from 'formidable'
+import fs from 'fs'
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+export const config = {
+  api: {
+    bodyParser: false, // necesario para manejar formData con archivos
+  },
+}
 
-export default async function handler(req) {
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
+)
+
+export default async function handler(req, res) {
   try {
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL"),
-      Deno.env.get("SUPABASE_KEY")
-    )
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' })
+    }
 
-    const form = await req.formData()
+    // Parsear formData con formidable
+    const form = await new Promise((resolve, reject) => {
+      const form = formidable({ multiples: false })
+      form.parse(req, (err, fields, files) => {
+        if (err) reject(err)
+        resolve({ fields, files })
+      })
+    })
 
-    const id = Number(form.get("id"))
-    const name = form.get("name")?.toString() || ""
-    const description = form.get("description")?.toString() || ""
-    const price = Number(form.get("price") || 0)
-    const category = form.get("category")?.toString() || "General"
-    const is_offer = form.get("is_offer") === "true"
-    const offer_price = Number(form.get("offer_price") || 0)
+    const { fields, files } = form
 
-    const image = form.get("image")
-    let image_url = form.get("current_image")?.toString() || null
+    const id = Number(fields.id)
+    const name = fields.name || ''
+    const description = fields.description || ''
+    const price = Number(fields.price || 0)
+    const category = fields.category || 'General'
+    const is_offer = fields.is_offer === 'true'
+    const offer_price = Number(fields.offer_price || 0)
 
-    if (image) {
-      const ext = image.name.split(".").pop()
+    let image_url = fields.current_image || null
+
+    // Si hay imagen nueva, subirla
+    if (files.image) {
+      const file = files.image
+      const ext = file.originalFilename.split('.').pop()
       const fileName = `${crypto.randomUUID()}.${ext}`
+      const fileBuffer = fs.readFileSync(file.filepath)
 
       const { error: uploadError } = await supabase.storage
-        .from("products")
-        .upload(fileName, image, {
-          contentType: image.type,
+        .from('products')
+        .upload(fileName, fileBuffer, {
+          contentType: file.mimetype,
         })
 
       if (uploadError) {
-        return new Response(JSON.stringify({ error: uploadError }), {
-          status: 500,
-        })
+        return res.status(500).json({ error: uploadError.message })
       }
 
       const { data: publicUrl } = supabase.storage
-        .from("products")
+        .from('products')
         .getPublicUrl(fileName)
 
       image_url = publicUrl.publicUrl
     }
 
+    // Actualizar producto
     const { data, error } = await supabase
-      .from("products")
+      .from('products')
       .update({
         name,
         description,
@@ -56,19 +76,15 @@ export default async function handler(req) {
         offer_price,
         image_url,
       })
-      .eq("id", id)
+      .eq('id', id)
       .select()
 
     if (error) {
-      return new Response(JSON.stringify({ error }), { status: 500 })
+      return res.status(500).json({ error: error.message })
     }
 
-    return new Response(JSON.stringify(data[0]), {
-      headers: { "Content-Type": "application/json" },
-    })
+    return res.status(200).json(data[0])
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-    })
+    return res.status(500).json({ error: err.message })
   }
 }
