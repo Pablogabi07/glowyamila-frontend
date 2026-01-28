@@ -1,11 +1,8 @@
-import { createClient } from '@supabase/supabase-js'
-import formidable from 'formidable'
-
 export const config = {
-  api: {
-    bodyParser: false, // necesario para manejar formData
-  },
+  runtime: "nodejs",
 }
+
+import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -14,29 +11,21 @@ const supabase = createClient(
 
 export default async function handler(req, res) {
   try {
-    if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'Method not allowed' })
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" })
     }
 
-    // Parsear formData
-    const form = await new Promise((resolve, reject) => {
-      const form = formidable({ multiples: false })
-      form.parse(req, (err, fields) => {
-        if (err) reject(err)
-        resolve(fields)
-      })
-    })
-
-    const id = Number(form.id)
+    const form = await req.formData()
+    const id = Number(form.get("id"))
 
     if (!id) {
-      return res.status(400).json({ error: 'Missing product ID' })
+      return res.status(400).json({ error: "Missing product ID" })
     }
 
     const { error } = await supabase
-      .from('products')
+      .from("products")
       .delete()
-      .eq('id', id)
+      .eq("id", id)
 
     if (error) {
       return res.status(500).json({ error: error.message })

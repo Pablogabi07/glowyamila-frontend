@@ -1,12 +1,8 @@
-import { createClient } from '@supabase/supabase-js'
-import formidable from 'formidable'
-import fs from 'fs'
-
 export const config = {
-  api: {
-    bodyParser: false, // necesario para manejar formData con archivos
-  },
+  runtime: "nodejs",
 }
+
+import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -15,42 +11,35 @@ const supabase = createClient(
 
 export default async function handler(req, res) {
   try {
-    if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'Method not allowed' })
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" })
     }
 
-    // Parsear formData con formidable
-    const form = await new Promise((resolve, reject) => {
-      const form = formidable({ multiples: false })
-      form.parse(req, (err, fields, files) => {
-        if (err) reject(err)
-        resolve({ fields, files })
-      })
-    })
+    const form = await req.formData()
 
-    const { fields, files } = form
+    const id = Number(form.get("id"))
+    const name = form.get("name") || ""
+    const description = form.get("description") || ""
+    const price = Number(form.get("price") || 0)
+    const category = form.get("category") || "General"
+    const is_offer = form.get("is_offer") === "true"
+    const offer_price = Number(form.get("offer_price") || 0)
 
-    const id = Number(fields.id)
-    const name = fields.name || ''
-    const description = fields.description || ''
-    const price = Number(fields.price || 0)
-    const category = fields.category || 'General'
-    const is_offer = fields.is_offer === 'true'
-    const offer_price = Number(fields.offer_price || 0)
+    let image_url = form.get("current_image") || null
 
-    let image_url = fields.current_image || null
+    const image = form.get("image")
 
-    // Si hay imagen nueva, subirla
-    if (files.image) {
-      const file = files.image
-      const ext = file.originalFilename.split('.').pop()
+    if (image && typeof image !== "string") {
+      const ext = image.name.split(".").pop()
       const fileName = `${crypto.randomUUID()}.${ext}`
-      const fileBuffer = fs.readFileSync(file.filepath)
+
+      const arrayBuffer = await image.arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
 
       const { error: uploadError } = await supabase.storage
-        .from('products')
-        .upload(fileName, fileBuffer, {
-          contentType: file.mimetype,
+        .from("products")
+        .upload(fileName, buffer, {
+          contentType: image.type,
         })
 
       if (uploadError) {
@@ -58,15 +47,14 @@ export default async function handler(req, res) {
       }
 
       const { data: publicUrl } = supabase.storage
-        .from('products')
+        .from("products")
         .getPublicUrl(fileName)
 
       image_url = publicUrl.publicUrl
     }
 
-    // Actualizar producto
     const { data, error } = await supabase
-      .from('products')
+      .from("products")
       .update({
         name,
         description,
@@ -76,7 +64,7 @@ export default async function handler(req, res) {
         offer_price,
         image_url,
       })
-      .eq('id', id)
+      .eq("id", id)
       .select()
 
     if (error) {
