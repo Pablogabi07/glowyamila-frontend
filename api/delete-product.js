@@ -1,4 +1,11 @@
 import { createClient } from '@supabase/supabase-js'
+import formidable from 'formidable'
+
+export const config = {
+  api: {
+    bodyParser: false, // necesario para manejar formData
+  },
+}
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -11,7 +18,15 @@ export default async function handler(req, res) {
       return res.status(405).json({ error: 'Method not allowed' })
     }
 
-    const form = await req.body
+    // Parsear formData
+    const form = await new Promise((resolve, reject) => {
+      const form = formidable({ multiples: false })
+      form.parse(req, (err, fields) => {
+        if (err) reject(err)
+        resolve(fields)
+      })
+    })
+
     const id = Number(form.id)
 
     if (!id) {
