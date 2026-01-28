@@ -19,6 +19,7 @@ export default async function handler(req) {
     const category = form.get("category") || "General"
     const is_offer = form.get("is_offer") === "true"
     const offer_price = Number(form.get("offer_price") || 0)
+    const stock = Number(form.get("stock") || 0)   // 👈 agregado
 
     let image_url = null
 
@@ -62,6 +63,7 @@ export default async function handler(req) {
           category,
           is_offer,
           offer_price,
+          stock,        // 👈 agregado
           image_url,
           active: true,
         },
