@@ -25,7 +25,7 @@ export default function Footer() {
 
         {/* ⭐ Crédito Pablo Design Lab */}
 <p className="footer-credit">
-  Diseñado por <a href="https://pablodesignlab.vercel.app/" target="_blank">Pablo Design Lab</a>
+  Diseñado por <a href="https://pablodesignlab-qkg6.vercel.app/" target="_blank">Pablo Design Lab</a>
 </p>
 
 
