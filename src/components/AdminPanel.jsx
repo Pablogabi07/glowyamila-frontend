@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '../supabase'
 import '../styles/admin.css'
 
 export default function AdminPanel() {
@@ -55,34 +54,33 @@ export default function AdminPanel() {
     localStorage.setItem('darkMode', darkMode)
   }, [darkMode])
 
-  // 📤 Subir imagen a Supabase Storage
+  // 📤 Subir imagen a API interna
   const uploadImage = async (file) => {
-    const fileName = `${Date.now()}-${file.name}`
+    const formData = new FormData()
+    formData.append("file", file)
 
-    const { error } = await supabase.storage
-      .from('products')
-      .upload(fileName, file)
+    const res = await fetch("/api/upload-image", {
+      method: "POST",
+      body: formData
+    })
 
-    if (error) {
-      console.error("Error subiendo imagen:", error)
+    const data = await res.json()
+
+    if (!res.ok) {
+      console.error("Error subiendo imagen:", data.error)
       return null
     }
 
-    const { data: urlData } = supabase.storage
-      .from('products')
-      .getPublicUrl(fileName)
-
-    return urlData.publicUrl
+    return data.url
   }
 
-  // 🔥 Cargar productos desde Supabase
+  // 🔥 Cargar productos desde API interna
   const loadProducts = async () => {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
+    const res = await fetch("/api/get-products")
+    const data = await res.json()
 
-    if (error) {
-      console.error("Error cargando productos:", error)
+    if (!res.ok) {
+      console.error("Error cargando productos:", data.error)
       return
     }
 
@@ -158,14 +156,41 @@ export default function AdminPanel() {
     }
 
     if (form.id) {
-      await supabase
-        .from('products')
-        .update(payload)
-        .eq('id', form.id)
+      // UPDATE
+      const formData = new FormData()
+      formData.append("id", form.id)
+      formData.append("name", payload.name)
+      formData.append("description", payload.description)
+      formData.append("price", payload.price)
+      formData.append("category", payload.category)
+      formData.append("is_offer", payload.is_offer)
+      formData.append("offer_price", payload.offer_price)
+      formData.append("stock", payload.stock)
+      formData.append("current_image", imageUrl)
+
+      if (imageFile) formData.append("image", imageFile)
+
+      await fetch("/api/update-product", {
+        method: "POST",
+        body: formData
+      })
+
     } else {
-      await supabase
-        .from('products')
-        .insert(payload)
+      // CREATE
+      const formData = new FormData()
+      formData.append("name", payload.name)
+      formData.append("description", payload.description)
+      formData.append("price", payload.price)
+      formData.append("category", payload.category)
+      formData.append("is_offer", payload.is_offer)
+      formData.append("offer_price", payload.offer_price)
+      formData.append("stock", payload.stock)
+      if (imageFile) formData.append("image", imageFile)
+
+      await fetch("/api/create-product", {
+        method: "POST",
+        body: formData
+      })
     }
 
     alert("Producto guardado")
@@ -205,10 +230,13 @@ export default function AdminPanel() {
   const deleteProduct = async (id) => {
     if (!confirm("¿Eliminar producto?")) return
 
-    await supabase
-      .from('products')
-      .delete()
-      .eq('id', id)
+    const formData = new FormData()
+    formData.append("id", id)
+
+    await fetch("/api/delete-product", {
+      method: "POST",
+      body: formData
+    })
 
     setProducts(prev => prev.filter(p => p.id !== id))
     setFiltered(prev => prev.filter(p => p.id !== id))
@@ -220,8 +248,7 @@ export default function AdminPanel() {
     setOnlyOffers(false)
   }
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
+  const handleLogout = () => {
     localStorage.removeItem("adminSession")
     navigate('/admin')
   }

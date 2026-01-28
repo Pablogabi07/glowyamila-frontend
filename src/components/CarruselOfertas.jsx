@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
 import { useCart } from '../context/CartContext'
-import { supabase } from '../supabase'
 import '../styles/carrusel.css'
 
 export default function CarruselOfertas() {
@@ -8,16 +7,14 @@ export default function CarruselOfertas() {
   const { addToCart } = useCart()
   const carouselRef = useRef(null)
 
-  // 🔥 Cargar ofertas desde Supabase
+  // 🔥 Cargar ofertas desde API interna
   useEffect(() => {
     const loadOffers = async () => {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('is_offer', true)
+      const res = await fetch("/api/get-offers")
+      const data = await res.json()
 
-      if (error) {
-        console.error("Error cargando ofertas:", error)
+      if (!res.ok) {
+        console.error("Error cargando ofertas:", data.error)
         return
       }
 

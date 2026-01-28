@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '../supabase'
 import ProductCard from './ProductCard'
 import CarruselOfertas from './CarruselOfertas'
 import '../styles/products.css'
@@ -9,13 +8,11 @@ export default function ProductsSection() {
 
   useEffect(() => {
     const loadProducts = async () => {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('active', true)
+      const res = await fetch("/api/get-products")
+      const data = await res.json()
 
-      if (error) {
-        console.error("Error cargando productos:", error)
+      if (!res.ok) {
+        console.error("Error cargando productos:", data.error)
         return
       }
 

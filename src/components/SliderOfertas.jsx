@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useCart } from '../context/CartContext'
-import { supabase } from '../supabase'
 import '../styles/slider.css'
 
 export default function SliderOfertas() {
@@ -10,14 +9,11 @@ export default function SliderOfertas() {
 
   useEffect(() => {
     const loadOffers = async () => {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('is_offer', true)
-        .eq('active', true)
+      const res = await fetch("/api/get-offers")
+      const data = await res.json()
 
-      if (error) {
-        console.error("Error cargando ofertas:", error)
+      if (!res.ok) {
+        console.error("Error cargando ofertas:", data.error)
         return
       }
 
@@ -35,7 +31,6 @@ export default function SliderOfertas() {
     loadOffers()
   }, [])
 
-  // Autoplay cada 4 segundos
   useEffect(() => {
     if (offers.length === 0) return
 
@@ -83,7 +78,6 @@ export default function SliderOfertas() {
         </div>
       </div>
 
-      {/* Dots */}
       <div className="slider-dots">
         {offers.map((_, i) => (
           <span
