@@ -1,33 +1,30 @@
 export const config = {
-  runtime: "nodejs",
+  runtime: "edge",
 }
 
 import { createClient } from "@supabase/supabase-js"
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
-)
-
-export default async function handler(req, res) {
+export default async function handler(req) {
   try {
-    if (req.method !== "POST") {
-      return res.status(405).json({ error: "Method not allowed" })
-    }
+    const supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_KEY
+    )
 
     const form = await req.formData()
     const file = form.get("file")
 
     if (!file) {
-      return res.status(400).json({ error: "No file provided" })
+      return new Response(JSON.stringify({ error: "No file provided" }), {
+        status: 400,
+      })
     }
 
     const ext = file.name.split(".").pop()
     const fileName = `${crypto.randomUUID()}.${ext}`
 
-    // Convertir Blob → ArrayBuffer → Buffer
     const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
+    const buffer = new Uint8Array(arrayBuffer)
 
     const { error: uploadError } = await supabase.storage
       .from("products")
@@ -36,15 +33,21 @@ export default async function handler(req, res) {
       })
 
     if (uploadError) {
-      return res.status(500).json({ error: uploadError.message })
+      return new Response(JSON.stringify({ error: uploadError.message }), {
+        status: 500,
+      })
     }
 
     const { data: publicUrl } = supabase.storage
       .from("products")
       .getPublicUrl(fileName)
 
-    return res.status(200).json({ url: publicUrl.publicUrl })
+    return new Response(JSON.stringify({ url: publicUrl.publicUrl }), {
+      headers: { "Content-Type": "application/json" },
+    })
   } catch (err) {
-    return res.status(500).json({ error: err.message })
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+    })
   }
 }

@@ -1,25 +1,23 @@
 export const config = {
-  runtime: "nodejs",
+  runtime: "edge",
 }
 
 import { createClient } from "@supabase/supabase-js"
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
-)
-
-export default async function handler(req, res) {
+export default async function handler(req) {
   try {
-    if (req.method !== "POST") {
-      return res.status(405).json({ error: "Method not allowed" })
-    }
+    const supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_KEY
+    )
 
     const form = await req.formData()
     const id = Number(form.get("id"))
 
     if (!id) {
-      return res.status(400).json({ error: "Missing product ID" })
+      return new Response(JSON.stringify({ error: "Missing product ID" }), {
+        status: 400,
+      })
     }
 
     const { error } = await supabase
@@ -28,11 +26,17 @@ export default async function handler(req, res) {
       .eq("id", id)
 
     if (error) {
-      return res.status(500).json({ error: error.message })
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 500,
+      })
     }
 
-    return res.status(200).json({ success: true })
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { "Content-Type": "application/json" },
+    })
   } catch (err) {
-    return res.status(500).json({ error: err.message })
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+    })
   }
 }
