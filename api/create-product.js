@@ -11,7 +11,6 @@ export default async function handler(req) {
 
     const form = await req.formData()
 
-    const id = Number(form.get("id"))
     const name = form.get("name")?.toString() || ""
     const description = form.get("description")?.toString() || ""
     const price = Number(form.get("price") || 0)
@@ -19,8 +18,8 @@ export default async function handler(req) {
     const is_offer = form.get("is_offer") === "true"
     const offer_price = Number(form.get("offer_price") || 0)
 
-    const image = form.get("image")
-    let image_url = form.get("current_image")?.toString() || null
+    const image = form.get("image") // File
+    let image_url = null
 
     if (image) {
       const ext = image.name.split(".").pop()
@@ -47,7 +46,7 @@ export default async function handler(req) {
 
     const { data, error } = await supabase
       .from("products")
-      .update({
+      .insert({
         name,
         description,
         price,
@@ -56,7 +55,6 @@ export default async function handler(req) {
         offer_price,
         image_url,
       })
-      .eq("id", id)
       .select()
 
     if (error) {

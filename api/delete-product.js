@@ -1,14 +1,12 @@
-// @ts-ignore
-
 export const config = { runtime: "edge" }
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
-export default async function handler(req: Request) {
+export default async function handler(req) {
   try {
     const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_KEY")!
+      Deno.env.get("SUPABASE_URL"),
+      Deno.env.get("SUPABASE_KEY")
     )
 
     const form = await req.formData()
@@ -32,7 +30,7 @@ export default async function handler(req: Request) {
     return new Response(JSON.stringify({ success: true }), {
       headers: { "Content-Type": "application/json" },
     })
-  } catch (err: any) {
+  } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
     })
