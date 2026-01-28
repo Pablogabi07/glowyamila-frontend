@@ -1,5 +1,4 @@
 import { useCart } from '../context/CartContext'
-import { supabase } from '../supabase'
 import '../styles/popup.css'
 
 export default function CartPopup() {
@@ -7,42 +6,39 @@ export default function CartPopup() {
 
   if (!isOpen) return null
 
-  // Total general
   const total = cart.reduce((acc, item) => {
     const price = item.isOffer ? item.offerPrice : item.price
     return acc + price * item.quantity
   }, 0)
 
-  // 🟣 Enviar pedido con control de stock real
   const sendOrder = async () => {
     if (cart.length === 0) return
 
-    // 1️⃣ Verificar stock en Supabase antes de enviar
-    for (const item of cart) {
-      const { data, error } = await supabase
-        .from('products')
-        .select('stock')
-        .eq('id', item.id)
-        .single()
+    // 1️⃣ Verificar stock usando API interna
+    const stockCheck = await fetch("/api/check-stock", {
+      method: "POST",
+      body: JSON.stringify({ cart }),
+      headers: { "Content-Type": "application/json" }
+    })
 
-      if (error) {
-        alert("Error verificando stock.")
-        return
-      }
+    const stockResult = await stockCheck.json()
 
-      if (data.stock < item.quantity) {
-        alert(`No hay suficiente stock de ${item.name}. Disponible: ${data.stock}`)
-        return
-      }
+    if (!stockCheck.ok) {
+      alert(stockResult.error || "Error verificando stock.")
+      return
     }
 
-    // 2️⃣ Descontar stock en Supabase usando la función SQL
-    for (const item of cart) {
-      await supabase.rpc('decrement_stock', {
-        product_id: item.id,
-        qty: item.quantity
-      })
+    if (!stockResult.ok) {
+      alert(stockResult.message)
+      return
     }
+
+    // 2️⃣ Descontar stock usando API interna
+    await fetch("/api/decrement-stock", {
+      method: "POST",
+      body: JSON.stringify({ cart }),
+      headers: { "Content-Type": "application/json" }
+    })
 
     // 3️⃣ Armar mensaje de WhatsApp
     const br = "%0A"
@@ -66,32 +62,26 @@ export default function CartPopup() {
 
     const phone = "5491133007172"
 
-    // 4️⃣ Vaciar carrito
     clearCart()
 
-    // 5️⃣ Abrir WhatsApp
     window.open(`https://wa.me/${phone}?text=${finalMessage}`)
   }
 
   return (
     <div className="cart-popup">
       <div className="popup-content popup-animate">
-        
-        {/* Cerrar */}
         <button className="close" onClick={() => setIsOpen(false)}>X</button>
 
         <h2>Tu carrito</h2>
 
         {cart.length === 0 && <p>No hay productos en el carrito.</p>}
 
-        {/* LISTA DE PRODUCTOS */}
         {cart.map(item => {
           const price = item.isOffer ? item.offerPrice : item.price
           const subtotal = price * item.quantity
 
           return (
             <div key={item.id} className="cart-item">
-
               <div className="item-info">
                 <span className="item-name">{item.name}</span>
                 <span className="item-subtotal">
@@ -112,26 +102,19 @@ export default function CartPopup() {
           )
         })}
 
-        {/* TOTAL GENERAL */}
         <div className="cart-total">
           <span>Total:</span>
           <strong>${total}</strong>
         </div>
 
-        {/* SEGUIR COMPRANDO */}
-        <button
-          className="continue-btn"
-          onClick={() => setIsOpen(false)}
-        >
+        <button className="continue-btn" onClick={() => setIsOpen(false)}>
           Seguir comprando
         </button>
 
-        {/* ENVIAR PEDIDO */}
         <button onClick={sendOrder} className="whatsapp-btn">
           Enviar pedido
         </button>
 
-        {/* VACIAR */}
         <button onClick={clearCart} className="clear-btn">
           Vaciar carrito
         </button>
